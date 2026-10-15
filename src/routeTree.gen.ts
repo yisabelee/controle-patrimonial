@@ -82,7 +82,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/auth' | '/reset-password' | '/painel' | '/admin' | '/relatorios'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/reset-password' | '/painel'
+  to: '/' | '/auth' | '/reset-password' | '/painel' | '/admin' | '/relatorios'
   id:
     | '__root__'
     | '/'

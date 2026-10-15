@@ -7,7 +7,7 @@ import { usePapeis, useRealtimeSync } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
-  { to: "/painel", label: "Painel", icon: LayoutDashboard },
+  { to: "/painel", label: "Consulta patrimonial", icon: LayoutDashboard },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/admin", label: "Administração", icon: ShieldCheck },
 ] as const;
@@ -33,7 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="grid size-8 place-items-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
               <Boxes className="size-4" />
             </span>
-            <span className="hidden sm:inline">Controle Patrimonial</span>
+            <span className="hidden sm:inline">Controle Patrimonial FAPDF</span>
           </Link>
           <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
             {NAV.filter((n) => n.to !== "/admin" || papeis?.admin).map((n) => (
@@ -50,14 +50,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
           <span className="hidden max-w-48 truncate text-xs text-sidebar-foreground/70 lg:inline">
             {papeis?.email}
-            {papeis?.admin ? " · admin" : papeis?.conferente ? " · conferente" : " · leitura"}
+            {papeis?.admin ? " · administradora" : papeis?.conferente ? " · conferência" : " · consulta"}
           </span>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={sair}
-            className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-          >
+          <Button size="sm" variant="ghost" onClick={sair} className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
             <LogOut className="size-4" />
             <span className="hidden sm:inline">Sair</span>
           </Button>

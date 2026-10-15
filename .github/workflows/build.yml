@@ -17,6 +17,6 @@ jobs:
         with:
           node-version: 22
       - name: Instalar dependências
-        run: npm install
+        run: npm install --legacy-peer-deps
       - name: Validar build
         run: npm run build

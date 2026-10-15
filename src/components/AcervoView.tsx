@@ -27,7 +27,10 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
   const [conferir, setConferir] = useState<PatrimonioView | null>(null);
   const [exportando, setExportando] = useState(false);
 
-  const setoresAtivos = setores.filter((item) => item.ativo);\n  const localizacoesAtivas = localizacoes.filter((item) => item.ativo);\n\n  const selecionadosVisiveis = filtrados.filter((r) => sel.has(r.id));
+  const setoresAtivos = setores.filter((item) => item.ativo);
+  const localizacoesAtivas = localizacoes.filter((item) => item.ativo);
+
+  const selecionadosVisiveis = filtrados.filter((r) => sel.has(r.id));
   const alvo = selecionadosVisiveis.length ? selecionadosVisiveis : filtrados;
   const descr = [
     ...descreverFiltros(f, setores, localizacoes),

@@ -55,7 +55,7 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
 
   return (
     <div className="space-y-3">
-      <FiltrosBar f={f} set={setF} setores={setoresAtivos} localizacoes={localizacoesAtivas} />
+      <FiltrosBar f={f} set={setF} setores={setores} localizacoes={localizacoes} />
       <div className="flex flex-wrap items-center gap-2">
         <p className="mr-auto text-sm text-muted-foreground">
           {isLoading ? "Carregando…" : `${filtrados.length} registro(s)`}
@@ -88,8 +88,8 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
         onEditar={(item) => setForm({ open: true, item })}
         onConferir={setConferir}
       />
-      <PatrimonioForm open={form.open} onOpenChange={(o) => setForm((s) => ({ ...s, open: o }))} editando={form.item} setores={setores} localizacoes={localizacoesAtivas} />
-      <ConferenciaDialog item={conferir} onClose={() => setConferir(null)} localizacoes={localizacoes} />
+      <PatrimonioForm open={form.open} onOpenChange={(o) => setForm((s) => ({ ...s, open: o }))} editando={form.item} setores={setoresAtivos} localizacoes={localizacoesAtivas} />
+      <ConferenciaDialog item={conferir} onClose={() => setConferir(null)} localizacoes={localizacoesAtivas} />
       <DetalhesDialog item={ver ? (filtrados.find((r) => r.id === ver.id) ?? ver) : null} onClose={() => setVer(null)} />
     </div>
   );

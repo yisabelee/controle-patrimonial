@@ -228,7 +228,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "conferente"
+      app_role: "admin" | "conferente" | "viewer"
       status_conferencia: "pendente" | "encontrado" | "nao_encontrado"
     }
     CompositeTypes: {

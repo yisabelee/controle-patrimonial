@@ -22,7 +22,7 @@ export function FiltrosBar({
         <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           aria-label="Pesquisar"
-          placeholder="Pesquisar por número ou descrição"
+          placeholder="Pesquisar número, bem, setor, local, status ou observação"
           value={f.busca}
           onChange={(e) => set({ ...f, busca: e.target.value })}
           className="pl-8"

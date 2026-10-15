@@ -27,6 +27,9 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
   const [conferir, setConferir] = useState<PatrimonioView | null>(null);
   const [exportando, setExportando] = useState(false);
 
+  const setoresAtivos = setores.filter((item) => item.ativo);
+  const localizacoesAtivas = localizacoes.filter((item) => item.ativo);
+
   const selecionadosVisiveis = filtrados.filter((r) => sel.has(r.id));
   const alvo = selecionadosVisiveis.length ? selecionadosVisiveis : filtrados;
   const descr = [
@@ -65,12 +68,12 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
           <FileText className="size-4" /> PDF{selecionadosVisiveis.length ? " (seleção)" : ""}
         </Button>
         {papeis?.admin && (
-          <Button size="sm" onClick={() => setForm({ open: true, item: null })} disabled={!setores.length || !localizacoes.length} title={!setores.length || !localizacoes.length ? "Cadastre setores e localizações na Administração" : undefined}>
+          <Button size="sm" onClick={() => setForm({ open: true, item: null })} disabled={!setoresAtivos.length || !localizacoesAtivas.length} title={!setoresAtivos.length || !localizacoesAtivas.length ? "Cadastre setores e localizações na Administração" : undefined}>
             <Plus className="size-4" /> Novo patrimônio
           </Button>
         )}
       </div>
-      {papeis?.admin && (!setores.length || !localizacoes.length) && !isLoading && (
+      {papeis?.admin && (!setoresAtivos.length || !localizacoesAtivas.length) && !isLoading && (
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
           Antes de cadastrar patrimônios, adicione ao menos um setor e uma localização em Administração.
         </p>
@@ -85,8 +88,8 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
         onEditar={(item) => setForm({ open: true, item })}
         onConferir={setConferir}
       />
-      <PatrimonioForm open={form.open} onOpenChange={(o) => setForm((s) => ({ ...s, open: o }))} editando={form.item} setores={setores} localizacoes={localizacoes} />
-      <ConferenciaDialog item={conferir} onClose={() => setConferir(null)} localizacoes={localizacoes} />
+      <PatrimonioForm open={form.open} onOpenChange={(o) => setForm((s) => ({ ...s, open: o }))} editando={form.item} setores={setoresAtivos} localizacoes={localizacoesAtivas} />
+      <ConferenciaDialog item={conferir} onClose={() => setConferir(null)} localizacoes={localizacoesAtivas} />
       <DetalhesDialog item={ver ? (filtrados.find((r) => r.id === ver.id) ?? ver) : null} onClose={() => setVer(null)} />
     </div>
   );

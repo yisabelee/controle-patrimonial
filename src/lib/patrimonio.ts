@@ -72,8 +72,9 @@ export function aplicarFiltros(rows: PatrimonioView[], f: Filtros): PatrimonioVi
   const q = f.busca.trim().toLowerCase();
   return rows.filter((r) => {
     if (!f.incluirTeste && r.is_teste) return false;
-    if (q && !r.numero.toLowerCase().includes(q) && !r.descricao.toLowerCase().includes(q))
-      return false;
+    if (q && ![
+      r.numero, r.descricao, r.setor, r.localizacao, r.status, STATUS_LABEL[r.status], r.observacoes ?? "",
+    ].some((valor) => valor.toLocaleLowerCase("pt-BR").includes(q))) return false;
     if (f.setorId && r.setor_id !== f.setorId) return false;
     if (f.localizacaoId && r.localizacao_id !== f.localizacaoId) return false;
     if (f.status && r.status !== f.status) return false;

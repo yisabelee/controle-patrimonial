@@ -35,7 +35,7 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
   ];
 
   async function exportar(tipo: "xlsx" | "pdf") {
-    if (!alvo.length) return toast.error("Não há registros para exportar.");
+    if (!alvo.length) { toast.error("Não há registros para exportar."); return; }
     setExportando(true);
     try {
       await (tipo === "xlsx" ? exportarExcel(alvo, descr) : exportarPdf(alvo, descr));

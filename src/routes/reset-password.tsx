@@ -26,11 +26,11 @@ function Reset() {
   const [salvando, setSalvando] = useState(false);
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
-    if (senha.length < 8) return toast.error("A senha deve ter ao menos 8 caracteres");
+    if (senha.length < 8) { toast.error("A senha deve ter ao menos 8 caracteres"); return; }
     setSalvando(true);
     const { error } = await supabase.auth.updateUser({ password: senha });
     setSalvando(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Senha atualizada");
     navigate({ to: "/painel" });
   }

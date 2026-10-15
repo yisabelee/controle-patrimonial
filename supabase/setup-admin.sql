@@ -1,7 +1,7 @@
 -- Execute este script no SQL Editor do projeto Supabase depois de criar/confirmar
 -- a conta lopesyasmin690@gmail.com em Authentication > Users.
 -- O script torna essa conta a única com papel admin e rebaixa os demais admins
--- existentes para conferente. Não apaga usuários nem dados patrimoniais.
+-- existentes para consulta, sem conceder permissão de conferência. Não apaga usuários nem dados patrimoniais.
 do $$
 declare
   v_admin_id uuid;
@@ -17,7 +17,7 @@ begin
   end if;
 
   update public.user_roles
-     set role = 'conferente'::public.app_role
+     set role = 'viewer'::public.app_role
    where role = 'admin'::public.app_role
      and user_id <> v_admin_id;
 

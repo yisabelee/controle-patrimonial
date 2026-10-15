@@ -52,7 +52,7 @@ export function Campo({
 }: {
   label: string;
   htmlFor?: string;
-  erro?: string;
+  erro?: string | undefined;
   children: React.ReactNode;
 }) {
   return (

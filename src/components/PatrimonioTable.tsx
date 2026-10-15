@@ -50,7 +50,7 @@ export function PatrimonioTable({
   async function confirmarExclusao() {
     if (!excluir) return;
     const { error } = await supabase.from("patrimonios").delete().eq("id", excluir.id);
-    if (error) return toast.error(mensagemErro(error));
+    if (error) { toast.error(mensagemErro(error)); return; }
     await invalidar();
     const s = new Set(selecionados);
     s.delete(excluir.id);

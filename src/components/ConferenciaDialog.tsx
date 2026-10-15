@@ -40,7 +40,7 @@ export function ConferenciaDialog({
       _localizacao_id: r.data.localizacao_id, _observacoes: r.data.observacoes,
     });
     setSalvando(false);
-    if (error) return toast.error(mensagemErro(error));
+    if (error) { toast.error(mensagemErro(error)); return; }
     await invalidar();
     toast.success(`Conferência de ${item.numero} registrada`);
     onClose();
@@ -65,14 +65,14 @@ export function ConferenciaDialog({
             ))}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Campo label="Data da conferência" htmlFor="cdata" erro={erros.data}>
+            <Campo label="Data da conferência" htmlFor="cdata" erro={erros["data"]}>
               <Input id="cdata" type="date" max={hojeISO()} value={v.data} onChange={(e) => setV({ ...v, data: e.target.value })} />
             </Campo>
-            <Campo label="Localização encontrada" htmlFor="cloc" erro={erros.localizacao_id}>
+            <Campo label="Localização encontrada" htmlFor="cloc" erro={erros["localizacao_id"]}>
               <OpcoesSelect id="cloc" opcoes={localizacoes} value={v.localizacao_id} onChange={(x) => setV({ ...v, localizacao_id: x })} placeholder="Selecione…" />
             </Campo>
           </div>
-          <Campo label={v.status === "nao_encontrado" ? "Observações (obrigatório)" : "Observações"} htmlFor="cobs" erro={erros.observacoes}>
+          <Campo label={v.status === "nao_encontrado" ? "Observações (obrigatório)" : "Observações"} htmlFor="cobs" erro={erros["observacoes"]}>
             <Textarea id="cobs" rows={3} value={v.observacoes} onChange={(e) => setV({ ...v, observacoes: e.target.value })} />
           </Campo>
           <DialogFooter>

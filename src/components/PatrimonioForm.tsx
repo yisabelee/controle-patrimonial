@@ -46,9 +46,9 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
     const novosErros: Record<string, string> = {};
     if (!r.success) r.error.issues.forEach((i) => (novosErros[String(i.path[0])] = i.message));
     if (!editando) {
-      if (v.status !== "pendente" && !v.ultima_conferencia) novosErros.ultima_conferencia = "Informe a data da conferência";
-      if (v.ultima_conferencia && v.ultima_conferencia > hojeISO()) novosErros.ultima_conferencia = "A data não pode ser futura";
-      if (v.status === "nao_encontrado" && !v.observacoes.trim()) novosErros.observacoes = "Explique a situação do bem não encontrado";
+      if (v.status !== "pendente" && !v.ultima_conferencia) novosErros["ultima_conferencia"] = "Informe a data da conferência";
+      if (v.ultima_conferencia && v.ultima_conferencia > hojeISO()) novosErros["ultima_conferencia"] = "A data não pode ser futura";
+      if (v.status === "nao_encontrado" && !v.observacoes.trim()) novosErros["observacoes"] = "Explique a situação do bem não encontrado";
     }
     setErros(novosErros);
     if (!r.success || Object.keys(novosErros).length) return;
@@ -81,18 +81,18 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
         </DialogHeader>
         <form onSubmit={salvar} className="space-y-3" noValidate>
           <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
-            <Campo label="Número do patrimônio *" htmlFor="numero" erro={erros.numero}>
+            <Campo label="Número do patrimônio *" htmlFor="numero" erro={erros["numero"]}>
               <Input id="numero" value={v.numero} onChange={(e) => setV({ ...v, numero: e.target.value })} className="num-tag" />
             </Campo>
-            <Campo label="Descrição do bem *" htmlFor="descricao" erro={erros.descricao}>
+            <Campo label="Descrição do bem *" htmlFor="descricao" erro={erros["descricao"]}>
               <Input id="descricao" value={v.descricao} onChange={(e) => setV({ ...v, descricao: e.target.value })} />
             </Campo>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Campo label="Setor responsável pela carga *" htmlFor="setor" erro={erros.setor_id}>
+            <Campo label="Setor responsável pela carga *" htmlFor="setor" erro={erros["setor_id"]}>
               <OpcoesSelect id="setor" opcoes={setores} value={v.setor_id} onChange={(x) => setV({ ...v, setor_id: x })} placeholder="Selecione…" />
             </Campo>
-            <Campo label="Localização atual *" htmlFor="local" erro={erros.localizacao_id}>
+            <Campo label="Localização atual *" htmlFor="local" erro={erros["localizacao_id"]}>
               <OpcoesSelect id="local" opcoes={localizacoes} value={v.localizacao_id} onChange={(x) => setV({ ...v, localizacao_id: x })} placeholder="Selecione…" />
             </Campo>
           </div>
@@ -109,12 +109,12 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
                   <option value="nao_encontrado">Não encontrado</option>
                 </NativeSelect>
               </Campo>
-              <Campo label="Última data de conferência" htmlFor="data" erro={erros.ultima_conferencia}>
+              <Campo label="Última data de conferência" htmlFor="data" erro={erros["ultima_conferencia"]}>
                 <Input id="data" type="date" max={hojeISO()} value={v.ultima_conferencia} onChange={(e) => setV({ ...v, ultima_conferencia: e.target.value })} />
               </Campo>
             </div>
           )}
-          <Campo label="Observações" htmlFor="obs" erro={erros.observacoes}>
+          <Campo label="Observações" htmlFor="obs" erro={erros["observacoes"]}>
             <Textarea id="obs" rows={3} value={v.observacoes} onChange={(e) => setV({ ...v, observacoes: e.target.value })} />
           </Campo>
           <label className="flex items-center gap-2 text-sm text-muted-foreground">

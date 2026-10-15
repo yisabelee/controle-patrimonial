@@ -47,26 +47,26 @@ function AuthPage() {
     setAviso("");
     if (modo === "recuperar") {
       const r = z.string().trim().email().safeParse(email);
-      if (!r.success) return toast.error("Informe um e-mail válido");
+      if (!r.success) { toast.error("Informe um e-mail válido"); return; }
       setCarregando(true);
       const { error } = await supabase.auth.resetPasswordForEmail(r.data, { redirectTo: `${window.location.origin}/reset-password` });
       setCarregando(false);
-      if (error) return toast.error(error.message);
-      return setAviso("Se o e-mail existir, enviaremos um link para redefinir a senha.");
+      if (error) { toast.error(error.message); return; }
+      { setAviso("Se o e-mail existir, enviaremos um link para redefinir a senha."); return; }
     }
     const r = schema.safeParse({ email, senha });
-    if (!r.success) return toast.error(r.error.issues[0].message);
+    if (!r.success) { toast.error(r.error.issues[0]?.message ?? "Dados inválidos"); return; }
     setCarregando(true);
     if (modo === "entrar") {
       const { error } = await supabase.auth.signInWithPassword({ email: r.data.email, password: r.data.senha });
       setCarregando(false);
-      if (error) return toast.error(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos" : error.message);
+      if (error) { toast.error(error.message === "Invalid login credentials" ? "E-mail ou senha incorretos" : error.message); return; }
     } else {
       const { error } = await supabase.auth.signUp({
         email: r.data.email, password: r.data.senha, options: { emailRedirectTo: window.location.origin },
       });
       setCarregando(false);
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       setAviso("Conta criada. Confirme pelo link enviado ao seu e-mail para entrar.");
     }
   }

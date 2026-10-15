@@ -36,7 +36,7 @@ create policy cp_access_patrimonios_read
     or public.has_role('viewer'::public.app_role, auth.uid())
   );
 create policy cp_access_patrimonios_read_limit
-  on public.patrimonios as restrictive for select to authenticated
+  on public.patrimonios as restrictive for select to public
   using (
     public.has_role('admin'::public.app_role, auth.uid())
     or public.has_role('conferente'::public.app_role, auth.uid())
@@ -46,21 +46,21 @@ create policy cp_access_patrimonios_insert
   on public.patrimonios as permissive for insert to authenticated
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_patrimonios_insert_limit
-  on public.patrimonios as restrictive for insert to authenticated
+  on public.patrimonios as restrictive for insert to public
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_patrimonios_update
   on public.patrimonios as permissive for update to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_patrimonios_update_limit
-  on public.patrimonios as restrictive for update to authenticated
+  on public.patrimonios as restrictive for update to public
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_patrimonios_delete
   on public.patrimonios as permissive for delete to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_patrimonios_delete_limit
-  on public.patrimonios as restrictive for delete to authenticated
+  on public.patrimonios as restrictive for delete to public
   using (public.has_role('admin'::public.app_role, auth.uid()));
 
 -- Setores e localizações: todos os autorizados consultam; somente admin altera.
@@ -72,7 +72,7 @@ create policy cp_access_setores_read
     or public.has_role('viewer'::public.app_role, auth.uid())
   );
 create policy cp_access_setores_read_limit
-  on public.setores as restrictive for select to authenticated
+  on public.setores as restrictive for select to public
   using (
     public.has_role('admin'::public.app_role, auth.uid())
     or public.has_role('conferente'::public.app_role, auth.uid())
@@ -82,21 +82,21 @@ create policy cp_access_setores_insert
   on public.setores as permissive for insert to authenticated
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_setores_insert_limit
-  on public.setores as restrictive for insert to authenticated
+  on public.setores as restrictive for insert to public
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_setores_update
   on public.setores as permissive for update to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_setores_update_limit
-  on public.setores as restrictive for update to authenticated
+  on public.setores as restrictive for update to public
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_setores_delete
   on public.setores as permissive for delete to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_setores_delete_limit
-  on public.setores as restrictive for delete to authenticated
+  on public.setores as restrictive for delete to public
   using (public.has_role('admin'::public.app_role, auth.uid()));
 
 create policy cp_access_localizacoes_read
@@ -107,7 +107,7 @@ create policy cp_access_localizacoes_read
     or public.has_role('viewer'::public.app_role, auth.uid())
   );
 create policy cp_access_localizacoes_read_limit
-  on public.localizacoes as restrictive for select to authenticated
+  on public.localizacoes as restrictive for select to public
   using (
     public.has_role('admin'::public.app_role, auth.uid())
     or public.has_role('conferente'::public.app_role, auth.uid())
@@ -117,21 +117,21 @@ create policy cp_access_localizacoes_insert
   on public.localizacoes as permissive for insert to authenticated
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_localizacoes_insert_limit
-  on public.localizacoes as restrictive for insert to authenticated
+  on public.localizacoes as restrictive for insert to public
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_localizacoes_update
   on public.localizacoes as permissive for update to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_localizacoes_update_limit
-  on public.localizacoes as restrictive for update to authenticated
+  on public.localizacoes as restrictive for update to public
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_localizacoes_delete
   on public.localizacoes as permissive for delete to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_localizacoes_delete_limit
-  on public.localizacoes as restrictive for delete to authenticated
+  on public.localizacoes as restrictive for delete to public
   using (public.has_role('admin'::public.app_role, auth.uid()));
 
 -- Histórico de conferência: leitura para todos autorizados; conferência para
@@ -144,7 +144,7 @@ create policy cp_access_conferencias_read
     or public.has_role('viewer'::public.app_role, auth.uid())
   );
 create policy cp_access_conferencias_read_limit
-  on public.conferencias as restrictive for select to authenticated
+  on public.conferencias as restrictive for select to public
   using (
     public.has_role('admin'::public.app_role, auth.uid())
     or public.has_role('conferente'::public.app_role, auth.uid())
@@ -157,7 +157,7 @@ create policy cp_access_conferencias_insert
     or public.has_role('conferente'::public.app_role, auth.uid())
   );
 create policy cp_access_conferencias_insert_limit
-  on public.conferencias as restrictive for insert to authenticated
+  on public.conferencias as restrictive for insert to public
   with check (
     public.has_role('admin'::public.app_role, auth.uid())
     or public.has_role('conferente'::public.app_role, auth.uid())
@@ -167,14 +167,14 @@ create policy cp_access_conferencias_update
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_conferencias_update_limit
-  on public.conferencias as restrictive for update to authenticated
+  on public.conferencias as restrictive for update to public
   using (public.has_role('admin'::public.app_role, auth.uid()))
   with check (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_conferencias_delete
   on public.conferencias as permissive for delete to authenticated
   using (public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_conferencias_delete_limit
-  on public.conferencias as restrictive for delete to authenticated
+  on public.conferencias as restrictive for delete to public
   using (public.has_role('admin'::public.app_role, auth.uid()));
 
 -- Usuários só podem consultar seus próprios papéis. Papéis são administrados
@@ -183,16 +183,16 @@ create policy cp_access_user_roles_read
   on public.user_roles as permissive for select to authenticated
   using (user_id = auth.uid() or public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_user_roles_read_limit
-  on public.user_roles as restrictive for select to authenticated
+  on public.user_roles as restrictive for select to public
   using (user_id = auth.uid() or public.has_role('admin'::public.app_role, auth.uid()));
 create policy cp_access_user_roles_insert_limit
-  on public.user_roles as restrictive for insert to authenticated
+  on public.user_roles as restrictive for insert to public
   with check (false);
 create policy cp_access_user_roles_update_limit
-  on public.user_roles as restrictive for update to authenticated
+  on public.user_roles as restrictive for update to public
   using (false) with check (false);
 create policy cp_access_user_roles_delete_limit
-  on public.user_roles as restrictive for delete to authenticated
+  on public.user_roles as restrictive for delete to public
   using (false);
 
 -- Perfis: cada usuário acessa apenas seu próprio perfil.
@@ -200,19 +200,23 @@ create policy cp_access_profiles_read
   on public.profiles as permissive for select to authenticated
   using (id = auth.uid());
 create policy cp_access_profiles_read_limit
-  on public.profiles as restrictive for select to authenticated
+  on public.profiles as restrictive for select to public
   using (id = auth.uid());
 create policy cp_access_profiles_insert
   on public.profiles as permissive for insert to authenticated
   with check (id = auth.uid());
 create policy cp_access_profiles_insert_limit
-  on public.profiles as restrictive for insert to authenticated
+  on public.profiles as restrictive for insert to public
   with check (id = auth.uid());
 create policy cp_access_profiles_update
   on public.profiles as permissive for update to authenticated
   using (id = auth.uid())
   with check (id = auth.uid());
 create policy cp_access_profiles_update_limit
-  on public.profiles as restrictive for update to authenticated
+  on public.profiles as restrictive for update to public
   using (id = auth.uid())
   with check (id = auth.uid());
+
+create policy cp_access_profiles_delete_limit
+  on public.profiles as restrictive for delete to public
+  using (false);

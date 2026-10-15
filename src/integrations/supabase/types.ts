@@ -14,16 +14,222 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conferencias: {
+        Row: {
+          created_at: string
+          data_conferencia: string
+          id: string
+          localizacao_id: string | null
+          localizacao_nome: string | null
+          observacoes: string | null
+          patrimonio_id: string
+          registrado_por: string | null
+          status: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Insert: {
+          created_at?: string
+          data_conferencia: string
+          id?: string
+          localizacao_id?: string | null
+          localizacao_nome?: string | null
+          observacoes?: string | null
+          patrimonio_id: string
+          registrado_por?: string | null
+          status: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Update: {
+          created_at?: string
+          data_conferencia?: string
+          id?: string
+          localizacao_id?: string | null
+          localizacao_nome?: string | null
+          observacoes?: string | null
+          patrimonio_id?: string
+          registrado_por?: string | null
+          status?: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conferencias_localizacao_id_fkey"
+            columns: ["localizacao_id"]
+            isOneToOne: false
+            referencedRelation: "localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conferencias_patrimonio_id_fkey"
+            columns: ["patrimonio_id"]
+            isOneToOne: false
+            referencedRelation: "patrimonios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      localizacoes: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      patrimonios: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+          is_teste: boolean
+          localizacao_id: string
+          numero: string
+          observacoes: string | null
+          setor_id: string
+          status: Database["public"]["Enums"]["status_conferencia"]
+          ultima_conferencia: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao: string
+          id?: string
+          is_teste?: boolean
+          localizacao_id: string
+          numero: string
+          observacoes?: string | null
+          setor_id: string
+          status?: Database["public"]["Enums"]["status_conferencia"]
+          ultima_conferencia?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+          is_teste?: boolean
+          localizacao_id?: string
+          numero?: string
+          observacoes?: string | null
+          setor_id?: string
+          status?: Database["public"]["Enums"]["status_conferencia"]
+          ultima_conferencia?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patrimonios_localizacao_id_fkey"
+            columns: ["localizacao_id"]
+            isOneToOne: false
+            referencedRelation: "localizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patrimonios_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          nome: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          nome?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          nome?: string | null
+        }
+        Relationships: []
+      }
+      setores: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      pode_conferir: { Args: { _user_id: string }; Returns: boolean }
+      registrar_conferencia: {
+        Args: {
+          _data: string
+          _localizacao_id: string
+          _observacoes: string
+          _patrimonio_id: string
+          _status: Database["public"]["Enums"]["status_conferencia"]
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "conferente"
+      status_conferencia: "pendente" | "encontrado" | "nao_encontrado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +356,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "conferente"],
+      status_conferencia: ["pendente", "encontrado", "nao_encontrado"],
+    },
   },
 } as const

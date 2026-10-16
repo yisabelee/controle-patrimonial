@@ -1,12 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  Boxes,
-  ClipboardCheck,
-  FileBarChart,
-  LayoutDashboard,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, Boxes, FileBarChart, LayoutDashboard, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePapeis } from "@/lib/data";
 
@@ -14,17 +7,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Controle Patrimonial FAPDF" },
-      {
-        name: "description",
-        content: "Sistema de consulta, acompanhamento e conferência dos bens patrimoniais da FAPDF.",
-      },
-      { property: "og:title", content: "Controle Patrimonial FAPDF" },
-      {
-        property: "og:description",
-        content: "Consulta patrimonial, conferência física e relatórios.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
+      { name: "description", content: "Consulte os bens patrimoniais da FAPDF sem precisar entrar ou criar uma conta." },
     ],
   }),
   component: Index,
@@ -33,25 +16,31 @@ export const Route = createFileRoute("/")({
 const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
 
 function Index() {
-  const { data: papeis, isLoading } = usePapeis();
-  const isAdmin = Boolean(
-    papeis?.admin && papeis.email?.trim().toLocaleLowerCase("pt-BR") === ADMIN_EMAIL,
-  );
+  const { data: papeis } = usePapeis();
+  const isAdmin = Boolean(papeis?.admin && papeis.email?.trim().toLowerCase() === ADMIN_EMAIL);
+  const adminPath = isAdmin ? "/admin" : "/auth";
 
-  const atalhos = [
+  const cards = [
     {
-      titulo: "Painel patrimonial",
-      descricao: "Consulte os bens, pesquise registros e acompanhe os indicadores do inventário.",
-      detalhe: "Consulta de bens",
+      titulo: "Consultar patrimônios",
+      descricao: "Pesquise os bens cadastrados, confira setor de carga, localização e situação. Não precisa de login.",
+      detalhe: "Acesso público",
       icon: LayoutDashboard,
       to: "/painel" as const,
     },
     {
-      titulo: "Relatórios",
-      descricao: "Acesse os relatórios disponíveis e organize as informações para conferência.",
-      detalhe: "PDF e planilhas",
+      titulo: "Relatórios patrimoniais",
+      descricao: "Consulte os registros e utilize as opções disponíveis para exportar os resultados.",
+      detalhe: "Consulta e exportação",
       icon: FileBarChart,
       to: "/relatorios" as const,
+    },
+    {
+      titulo: "Área do administrador",
+      descricao: "Acesso restrito para cadastrar, editar e remover patrimônios, setores e localizações.",
+      detalhe: "Login obrigatório",
+      icon: ShieldCheck,
+      to: adminPath,
     },
   ];
 
@@ -64,14 +53,12 @@ function Index() {
               <Boxes className="size-6" />
             </span>
             <span>
-              <span className="block font-display text-base font-semibold sm:text-lg">
-                Controle Patrimonial
-              </span>
+              <span className="block font-display text-base font-semibold sm:text-lg">Controle Patrimonial</span>
               <span className="block text-xs text-muted-foreground">Fundação de Apoio à Pesquisa do DF</span>
             </span>
           </Link>
           <Button asChild variant="outline" size="sm">
-            <Link to="/auth">Entrar <ArrowRight className="ml-2 size-4" /></Link>
+            <Link to={adminPath}>{isAdmin ? "Abrir administração" : "Área do administrador"} <ArrowRight className="ml-2 size-4" /></Link>
           </Button>
         </div>
       </header>
@@ -82,94 +69,49 @@ function Index() {
           <div className="relative max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent/70 px-3 py-1.5 text-xs font-medium">
               <span className="size-2 rounded-full bg-sidebar-primary" />
-              Sistema de gestão patrimonial
+              Consulta pública · sem login
             </div>
             <h1 className="font-display text-3xl font-semibold leading-tight sm:text-5xl">
-              Organização e transparência em cada bem patrimonial.
+              Consulte os patrimônios da FAPDF em um só lugar.
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-sidebar-foreground/75 sm:text-base">
-              Consulte o inventário, acompanhe as informações dos bens e acesse as ferramentas de
-              conferência e relatórios em um só lugar.
+              Pesquise os bens, verifique a carga patrimonial e consulte as informações disponíveis.
+              A entrada é livre para consulta; somente a administração exige login.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90">
-                <Link to="/painel">Acessar painel <ArrowRight className="ml-2 size-4" /></Link>
+                <Link to="/painel">Consultar patrimônios <ArrowRight className="ml-2 size-4" /></Link>
               </Button>
-              {isAdmin && (
-                <Button asChild size="lg" variant="outline" className="border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent">
-                  <Link to="/admin"><ShieldCheck className="mr-2 size-4" /> Área administrativa</Link>
-                </Button>
-              )}
+              <Button asChild size="lg" variant="outline" className="border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent">
+                <Link to={adminPath}><ShieldCheck className="mr-2 size-4" /> Área do administrador</Link>
+              </Button>
             </div>
           </div>
         </section>
 
         <section className="mt-10">
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <p className="text-sm font-medium text-primary">Acesso rápido</p>
-              <h2 className="mt-1 font-display text-2xl font-semibold">O que você precisa fazer?</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">Escolha uma área para continuar</p>
+          <div className="mb-5">
+            <p className="text-sm font-medium text-primary">Acesso rápido</p>
+            <h2 className="mt-1 font-display text-2xl font-semibold">Escolha uma área</h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            {atalhos.map((atalho) => (
-              <Link
-                key={atalho.titulo}
-                to={atalho.to}
-                className="group rounded-2xl border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md sm:p-6"
-              >
+          <div className="grid gap-4 md:grid-cols-3">
+            {cards.map((card) => (
+              <Link key={card.titulo} to={card.to} className="group rounded-2xl border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md sm:p-6">
                 <div className="flex items-start justify-between gap-4">
-                  <span className="grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <atalho.icon className="size-6" />
-                  </span>
+                  <span className="grid size-12 place-items-center rounded-xl bg-primary/10 text-primary"><card.icon className="size-6" /></span>
                   <ArrowRight className="mt-1 size-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                 </div>
-                <p className="mt-5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{atalho.detalhe}</p>
-                <h3 className="mt-1 text-lg font-semibold">{atalho.titulo}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{atalho.descricao}</p>
+                <p className="mt-5 text-xs font-medium uppercase tracking-wide text-muted-foreground">{card.detalhe}</p>
+                <h3 className="mt-1 text-lg font-semibold">{card.titulo}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{card.descricao}</p>
               </Link>
             ))}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                className="group rounded-2xl border border-primary/20 bg-primary/[0.035] p-5 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md sm:p-6"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <span className="grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <ShieldCheck className="size-6" />
-                  </span>
-                  <ArrowRight className="mt-1 size-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                </div>
-                <p className="mt-5 text-xs font-medium uppercase tracking-wide text-muted-foreground">Acesso restrito</p>
-                <h3 className="mt-1 text-lg font-semibold">Área administrativa</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Gerencie os cadastros auxiliares e mantenha os dados do sistema organizados.
-                </p>
-              </Link>
-            )}
           </div>
-        </section>
-
-        <section className="mt-8 grid gap-4 sm:grid-cols-3">
-          {[
-            { icon: Boxes, titulo: "Inventário centralizado", texto: "Informações dos bens organizadas em um só ambiente." },
-            { icon: ClipboardCheck, titulo: "Conferência registrada", texto: "Acompanhe status e histórico das verificações." },
-            { icon: FileBarChart, titulo: "Relatórios práticos", texto: "Consulte as ferramentas de relatório disponíveis." },
-          ].map((item) => (
-            <div key={item.titulo} className="flex gap-3 rounded-xl border border-dashed p-4">
-              <item.icon className="mt-0.5 size-5 shrink-0 text-primary" />
-              <div>
-                <h3 className="text-sm font-semibold">{item.titulo}</h3>
-                <p className="mt-1 text-xs leading-5 text-muted-foreground">{item.texto}</p>
-              </div>
-            </div>
-          ))}
         </section>
 
         <footer className="mt-12 flex flex-col gap-1 border-t pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>Controle Patrimonial FAPDF</span>
-          <span>{isLoading ? "Verificando permissões…" : isAdmin ? "Sessão administrativa autorizada" : "Acesso conforme as permissões da conta"}</span>
+          <span>Consulta pública · Administração protegida por login</span>
         </footer>
       </main>
     </div>

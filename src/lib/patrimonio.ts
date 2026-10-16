@@ -23,6 +23,7 @@ export interface Patrimonio {
   ultima_conferencia: string | null;
   status: Status;
   observacoes: string | null;
+  responsavel_uso: string | null;
   is_teste: boolean;
   created_at: string;
   updated_at: string;
@@ -73,7 +74,7 @@ export function aplicarFiltros(rows: PatrimonioView[], f: Filtros): PatrimonioVi
   return rows.filter((r) => {
     if (!f.incluirTeste && r.is_teste) return false;
     if (q && ![
-      r.numero, r.descricao, r.setor, r.localizacao, r.status, STATUS_LABEL[r.status], r.observacoes ?? "",
+      r.numero, r.descricao, r.setor, r.localizacao, r.responsavel_uso ?? "", r.status, STATUS_LABEL[r.status], r.observacoes ?? "",
     ].some((valor) => valor.toLocaleLowerCase("pt-BR").includes(q))) return false;
     if (f.setorId && r.setor_id !== f.setorId) return false;
     if (f.localizacaoId && r.localizacao_id !== f.localizacaoId) return false;
@@ -92,6 +93,7 @@ export type SortKey =
   | "descricao"
   | "setor"
   | "localizacao"
+  | "responsavel_uso"
   | "ultima_conferencia"
   | "status"
   | "observacoes";
@@ -180,6 +182,7 @@ export const patrimonioSchema = z.object({
   setor_id: z.string().uuid("Selecione o setor da carga"),
   localizacao_id: z.string().uuid("Selecione a localização atual"),
   observacoes: z.string().max(2000, "Máximo de 2000 caracteres").optional().default(""),
+  responsavel_uso: z.string().trim().max(200, "Máximo de 200 caracteres").optional().default(""),
   is_teste: z.boolean().default(false),
 });
 

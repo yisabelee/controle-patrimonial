@@ -15,6 +15,13 @@
       "when": 1792153324264,
       "tag": "0001_add_responsavel_uso_to_patrimonios",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792154595303,
+      "tag": "0002_public_read_only_anon",
+      "breakpoints": true
     }
   ]
 }

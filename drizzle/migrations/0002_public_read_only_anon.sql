@@ -1,0 +1,10 @@
+GRANT SELECT ON public.patrimonios, public.setores, public.localizacoes, public.conferencias TO anon;
+DROP POLICY IF EXISTS "visitante le patrimonios" ON public.patrimonios;
+CREATE POLICY "visitante le patrimonios" ON public.patrimonios FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "visitante le setores" ON public.setores;
+CREATE POLICY "visitante le setores" ON public.setores FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "visitante le localizacoes" ON public.localizacoes;
+CREATE POLICY "visitante le localizacoes" ON public.localizacoes FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "visitante le conferencias" ON public.conferencias;
+CREATE POLICY "visitante le conferencias" ON public.conferencias FOR SELECT TO anon USING (true);
+REVOKE EXECUTE ON FUNCTION public.registrar_conferencia(uuid, date, status_conferencia, uuid, text) FROM anon;

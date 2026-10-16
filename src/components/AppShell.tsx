@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Boxes, FileBarChart, LayoutDashboard, LogIn, LogOut, ShieldCheck } from "lucide-react";
+import { Boxes, FileBarChart, Home, LayoutDashboard, LogIn, LogOut, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, useRealtimeSync } from "@/lib/data";
@@ -49,6 +49,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             ))}
           </nav>
+          <Link
+            to="/"
+            className="flex shrink-0 items-center gap-1.5 rounded-md border border-sidebar-border px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
+            title="Voltar à página inicial"
+          >
+            <Home className="size-4" />
+            <span className="hidden sm:inline">Voltar ao início</span>
+            <span className="sm:hidden">Início</span>
+          </Link>
           <Link
             to={papeis?.admin ? "/admin" : "/auth"}
             className="flex shrink-0 items-center gap-1.5 rounded-md border border-sidebar-border px-3 py-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent"

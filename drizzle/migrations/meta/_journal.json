@@ -8,6 +8,13 @@
       "when": 1792069955649,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792153324264,
+      "tag": "0001_add_responsavel_uso_to_patrimonios",
+      "breakpoints": true
     }
   ]
 }

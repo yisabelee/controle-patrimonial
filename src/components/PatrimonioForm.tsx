@@ -55,13 +55,29 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
 
     setSalvando(true);
     const base = { ...r.data, observacoes: r.data.observacoes.trim() || null, responsavel_uso: r.data.responsavel_uso.trim() || null };
-    const { error } = editando
-      ? await supabase.from("patrimonios").update(base).eq("id", editando.id)
-      : await supabase.from("patrimonios").insert({
-          ...base,
-          status: v.status,
-          ultima_conferencia: v.status === "pendente" ? (v.ultima_conferencia || null) : v.ultima_conferencia,
-        });
+    const executarSalvamento = (dados: typeof base) =>
+      editando
+        ? supabase.from("patrimonios").update(dados).eq("id", editando.id)
+        : supabase.from("patrimonios").insert({
+            ...dados,
+            status: v.status,
+            ultima_conferencia: v.status === "pendente" ? (v.ultima_conferencia || null) : v.ultima_conferencia,
+          });
+
+    let { error } = await executarSalvamento(base);
+    let salvouSemResponsavel = false;
+
+    // Compatibilidade temporária com bancos em que a migração da coluna ainda não foi aplicada.
+    if (
+      error &&
+      (error.code === "PGRST204" || error.message?.includes("responsavel_uso") && error.message?.includes("schema cache"))
+    ) {
+      const { responsavel_uso: _campoPendente, ...dadosCompatibilidade } = base;
+      const tentativa = await executarSalvamento(dadosCompatibilidade as typeof base);
+      error = tentativa.error;
+      salvouSemResponsavel = !error;
+    }
+
     setSalvando(false);
     if (error) {
       if (error.code === "23505") setErros({ numero: "Este número de patrimônio já está cadastrado" });
@@ -69,7 +85,11 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
       return;
     }
     await invalidar();
-    toast.success(editando ? "Patrimônio atualizado" : "Patrimônio cadastrado");
+    if (salvouSemResponsavel) {
+      toast.warning("Patrimônio cadastrado, mas o campo “Quem está utilizando o bem” ainda não foi salvo. O banco precisa receber a atualização do sistema.");
+    } else {
+      toast.success(editando ? "Patrimônio atualizado" : "Patrimônio cadastrado");
+    }
     onOpenChange(false);
   }
 

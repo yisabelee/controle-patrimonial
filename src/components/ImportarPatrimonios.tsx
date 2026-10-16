@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { FileSpreadsheet, Upload, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { FileSpreadsheet, Upload, CheckCircle2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useInvalidarAcervo } from "@/lib/data";
@@ -35,7 +35,7 @@ const CAMPOS: { key: CampoPlanilha; label: string; required: boolean; aliases: s
   { key: "carga", label: "Carga / setor", required: true, aliases: ["carga", "setor", "setordacarga", "setorresponsavel", "cargapatrimonial"] },
   { key: "localizacao", label: "Localização atual", required: true, aliases: ["localizacaoatual", "localizacao", "localatual", "local"] },
   { key: "data", label: "Data da conferência", required: false, aliases: ["datadaconferencia", "ultimaconferencia", "dataconferencia", "ultimadatadeconferencia", "conferencia"] },
-  { key: "responsavel", label: "Quem está utilizando o bem", required: false, aliases: ["quemestautilizando", "quemestautilizandoobem", "responsavelpelo uso", "responsavelpelo uso", "responsavelpelo uso".replaceAll(" ", ""), "responsaveluso", "usuariodobem", "responsavel", "usuario"] },
+  { key: "responsavel", label: "Quem está utilizando o bem", required: false, aliases: ["quemestautilizando", "quemestautilizandoobem", "responsavelpelouso", "responsaveluso", "usuariodobem", "responsavel", "usuario"] },
 ];
 
 function normalizarCabecalho(value: unknown) {
@@ -107,7 +107,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
       const workbook = XLSX.read(bytes, { type: "array", cellDates: true });
       const sheet = workbook.Sheets[workbook.SheetNames[0]];
       if (!sheet) throw new Error("A planilha não contém uma aba com dados.");
-      const matriz = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "", raw: true });
+      const matriz = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "", raw: false });
       if (matriz.length < 2) throw new Error("A planilha precisa ter uma linha de cabeçalho e pelo menos um patrimônio.");
       const headers = (matriz[0] ?? []).map((v, i) => texto(v) || `Coluna ${i + 1}`);
       const rows = matriz.slice(1).filter((r) => r.some((v) => texto(v) !== ""));

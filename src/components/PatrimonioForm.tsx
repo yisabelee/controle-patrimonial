@@ -54,7 +54,7 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
     if (!r.success || Object.keys(novosErros).length) return;
 
     setSalvando(true);
-    const base = { ...r.data, observacoes: r.data.observacoes.trim() || null };
+    const base = { ...r.data, observacoes: r.data.observacoes.trim() || null, responsavel_uso: r.data.responsavel_uso.trim() || null };
     const { error } = editando
       ? await supabase.from("patrimonios").update(base).eq("id", editando.id)
       : await supabase.from("patrimonios").insert({

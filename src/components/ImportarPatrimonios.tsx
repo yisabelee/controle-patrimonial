@@ -58,9 +58,9 @@ function dataISO(value: unknown): string | null {
   }
   const raw = String(value).trim();
   const br = raw.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
-  if (br) return `${br[3]}-${br[2].padStart(2, "0")}-${br[1].padStart(2, "0")}`;
+  if (br) return `${br[3]}-${(br[2] ?? "").padStart(2, "0")}-${(br[1] ?? "").padStart(2, "0")}`;
   const iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (iso) return `${iso[1]}-${iso[2].padStart(2, "0")}-${iso[3].padStart(2, "0")}`;
+  if (iso) return `${iso[1]}-${(iso[2] ?? "").padStart(2, "0")}-${(iso[3] ?? "").padStart(2, "0")}`;
   return null;
 }
 function nomeChave(value: string) {
@@ -105,7 +105,8 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
     try {
       const bytes = await file.arrayBuffer();
       const workbook = XLSX.read(bytes, { type: "array", cellDates: true });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const primeiraAba = workbook.SheetNames[0];
+      const sheet = primeiraAba ? workbook.Sheets[primeiraAba] : undefined;
       if (!sheet) throw new Error("A planilha não contém uma aba com dados.");
       const matriz = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: "", raw: false });
       if (matriz.length < 2) throw new Error("A planilha precisa ter uma linha de cabeçalho e pelo menos um patrimônio.");
@@ -181,7 +182,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
       }
       if (error) {
         erros += lote.length;
-        toast.error(`Falha ao importar o lote iniciado na linha ${lote[0].linha}: ${error.message}`);
+        toast.error(`Falha ao importar o lote iniciado na linha ${lote[0]?.linha ?? "?"}: ${error.message}`);
       } else sucesso += lote.length;
     }
     await invalidar();

@@ -8,6 +8,8 @@ import { usePapeis } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
+
 type Catalogo = "setores" | "localizacoes";
 type Registro = { id: string; nome: string; ativo: boolean };
 
@@ -16,6 +18,10 @@ export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
     const { data: auth } = await supabase.auth.getUser();
     if (!auth.user) throw redirect({ to: "/auth" });
+
+    const email = (auth.user.email ?? "").trim().toLocaleLowerCase("pt-BR");
+    if (email !== ADMIN_EMAIL) throw redirect({ to: "/painel" });
+
     const { data: roles, error } = await supabase
       .from("user_roles")
       .select("role")
@@ -29,7 +35,7 @@ function Administracao() {
   const { data: papeis } = usePapeis();
   const qc = useQueryClient();
 
-  if (!papeis?.admin) {
+  if (!papeis?.admin || papeis.email?.trim().toLocaleLowerCase("pt-BR") !== ADMIN_EMAIL) {
     return <p className="rounded-md border p-4 text-sm text-muted-foreground">Verificando suas permissões…</p>;
   }
 
@@ -50,7 +56,7 @@ function Administracao() {
         <CatalogoCard titulo="Localizações atuais" tabela="localizacoes" qc={qc} />
       </div>
       <p className="text-xs text-muted-foreground">
-        Administradora autorizada: {papeis.email}. As permissões definitivas também precisam estar protegidas pelas políticas do banco de dados.
+        Área restrita à conta administradora autorizada. As operações também são protegidas pelas políticas do banco de dados.
       </p>
     </div>
   );

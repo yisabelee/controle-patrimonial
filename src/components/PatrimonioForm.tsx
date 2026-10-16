@@ -20,7 +20,7 @@ interface Props {
 export function PatrimonioForm({ open, onOpenChange, editando, setores, localizacoes }: Props) {
   const invalidar = useInvalidarAcervo();
   const [v, setV] = useState({
-    numero: "", descricao: "", setor_id: "", localizacao_id: "", observacoes: "", is_teste: false,
+    numero: "", descricao: "", setor_id: "", localizacao_id: "", responsavel_uso: "", observacoes: "", is_teste: false,
     status: "pendente" as Status, ultima_conferencia: "",
   });
   const [erros, setErros] = useState<Record<string, string>>({});
@@ -33,10 +33,10 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
       editando
         ? {
             numero: editando.numero, descricao: editando.descricao, setor_id: editando.setor_id,
-            localizacao_id: editando.localizacao_id, observacoes: editando.observacoes ?? "",
+            localizacao_id: editando.localizacao_id, responsavel_uso: editando.responsavel_uso ?? "", observacoes: editando.observacoes ?? "",
             is_teste: editando.is_teste, status: editando.status, ultima_conferencia: editando.ultima_conferencia ?? "",
           }
-        : { numero: "", descricao: "", setor_id: "", localizacao_id: "", observacoes: "", is_teste: false, status: "pendente", ultima_conferencia: "" },
+        : { numero: "", descricao: "", setor_id: "", localizacao_id: "", responsavel_uso: "", observacoes: "", is_teste: false, status: "pendente", ultima_conferencia: "" }, 
     );
   }, [open, editando]);
 
@@ -96,6 +96,10 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
               <OpcoesSelect id="local" opcoes={localizacoes} value={v.localizacao_id} onChange={(x) => setV({ ...v, localizacao_id: x })} placeholder="Selecione…" />
             </Campo>
           </div>
+          <Campo label="Quem está utilizando o bem" htmlFor="responsavel_uso" erro={erros["responsavel_uso"]}>
+            <Input id="responsavel_uso" value={v.responsavel_uso} onChange={(e) => setV({ ...v, responsavel_uso: e.target.value })} placeholder="Ex.: Yasmin" maxLength={200} />
+          </Campo>
+          <div className="grid gap-3 sm:grid-cols-2">
           {editando ? (
             <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
               Status e data da última conferência só mudam ao registrar uma conferência — editar o cadastro não os altera.

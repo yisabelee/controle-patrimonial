@@ -99,7 +99,6 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
           <Campo label="Quem está utilizando o bem" htmlFor="responsavel_uso" erro={erros["responsavel_uso"]}>
             <Input id="responsavel_uso" value={v.responsavel_uso} onChange={(e) => setV({ ...v, responsavel_uso: e.target.value })} placeholder="Ex.: Yasmin" maxLength={200} />
           </Campo>
-          <div className="grid gap-3 sm:grid-cols-2">
           {editando ? (
             <p className="rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
               Status e data da última conferência só mudam ao registrar uma conferência — editar o cadastro não os altera.

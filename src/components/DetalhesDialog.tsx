@@ -22,6 +22,7 @@ export function DetalhesDialog({ item, onClose }: { item: PatrimonioView | null;
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div><dt className="text-muted-foreground">Setor da carga</dt><dd>{item.setor}</dd></div>
               <div><dt className="text-muted-foreground">Localização atual</dt><dd>{item.localizacao}</dd></div>
+              <div><dt className="text-muted-foreground">Quem utiliza</dt><dd>{item.responsavel_uso || "—"}</dd></div>
               <div><dt className="text-muted-foreground">Última conferência</dt><dd>{formatarData(item.ultima_conferencia)}</dd></div>
               <div><dt className="text-muted-foreground">Atualizado em</dt><dd>{new Date(item.updated_at).toLocaleString("pt-BR")}</dd></div>
             </dl>

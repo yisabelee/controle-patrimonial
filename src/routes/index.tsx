@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Controle Patrimonial FAPDF" },
-      { name: "description", content: "Consulte os bens patrimoniais da FAPDF sem precisar entrar ou criar uma conta." },
+      { name: "description", content: "Sistema de controle patrimonial da Fundação de Apoio à Pesquisa do Distrito Federal." },
     ],
   }),
   component: Index,
@@ -23,8 +23,8 @@ function Index() {
   const cards = [
     {
       titulo: "Consultar patrimônios",
-      descricao: "Pesquise os bens cadastrados, confira setor de carga, localização e situação. Não precisa de login.",
-      detalhe: "Acesso público",
+      descricao: "Pesquise os bens cadastrados, confira setor de carga, localização e situação.",
+      detalhe: "Patrimônio",
       icon: LayoutDashboard,
       to: "/painel" as const,
     },
@@ -37,8 +37,8 @@ function Index() {
     },
     {
       titulo: "Área do administrador",
-      descricao: "Acesso restrito para cadastrar, editar e remover patrimônios, setores e localizações.",
-      detalhe: "Login obrigatório",
+      descricao: "Cadastre, edite e remova patrimônios, setores e localizações.",
+      detalhe: "Gerenciamento",
       icon: ShieldCheck,
       to: adminPath,
     },
@@ -72,10 +72,6 @@ function Index() {
         <section className="relative overflow-hidden rounded-3xl bg-sidebar px-6 py-9 text-sidebar-foreground shadow-sm sm:px-10 sm:py-14">
           <div className="pointer-events-none absolute -right-16 -top-24 size-72 rounded-full border-[36px] border-sidebar-primary/10" />
           <div className="relative max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent/70 px-3 py-1.5 text-xs font-medium">
-              <span className="size-2 rounded-full bg-sidebar-primary" />
-              Consulta pública · sem login
-            </div>
             <h1 className="font-display text-3xl font-semibold leading-tight sm:text-5xl">
               Consulte os patrimônios da FAPDF em um só lugar.
             </h1>
@@ -138,7 +134,7 @@ function Index() {
 
         <footer className="mt-12 flex flex-col gap-1 border-t pt-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>Controle Patrimonial FAPDF</span>
-          <span>Consulta pública · Administração protegida por login</span>
+          
         </footer>
       </main>
     </div>

@@ -16,6 +16,7 @@ const COLS: { key: SortKey; label: string; className?: string }[] = [
   { key: "descricao", label: "Descrição do bem" },
   { key: "setor", label: "Setor da carga" },
   { key: "localizacao", label: "Localização atual" },
+  { key: "responsavel_uso", label: "Quem utiliza" },
   { key: "ultima_conferencia", label: "Últ. conferência" },
   { key: "status", label: "Status" },
   { key: "observacoes", label: "Observações" },
@@ -62,7 +63,7 @@ export function PatrimonioTable({
   return (
     <div className="overflow-hidden rounded-lg border bg-card">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[960px] text-sm">
+        <table className="w-full min-w-[1080px] text-sm">
           <thead className="border-b bg-muted/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="w-8 px-3 py-2">
@@ -86,7 +87,7 @@ export function PatrimonioTable({
           </thead>
           <tbody>
             {visiveis.length === 0 && (
-              <tr><td colSpan={9} className="px-3 py-10 text-center text-muted-foreground">Nenhum patrimônio encontrado.</td></tr>
+              <tr><td colSpan={10} className="px-3 py-10 text-center text-muted-foreground">Nenhum patrimônio encontrado.</td></tr>
             )}
             {visiveis.map((r) => (
               <tr key={r.id} className="border-b align-top last:border-0 hover:bg-muted/40">
@@ -108,9 +109,8 @@ export function PatrimonioTable({
                 </td>
                 <td className="px-3 py-2.5">{r.descricao}</td>
                 <td className="px-3 py-2.5">{r.setor}</td>
-                <td className="px-3 py-2.5">
-                  {r.localizacao}
-                </td>
+                <td className="px-3 py-2.5">{r.localizacao}</td>
+                <td className="px-3 py-2.5">{r.responsavel_uso || "—"}</td>
                 <td className="whitespace-nowrap px-3 py-2.5">{formatarData(r.ultima_conferencia)}</td>
                 <td className="px-3 py-2.5"><StatusBadge status={r.status} /></td>
                 <td className="max-w-64 px-3 py-2.5 text-muted-foreground">

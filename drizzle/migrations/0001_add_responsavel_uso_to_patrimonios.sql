@@ -1,0 +1,1 @@
+ALTER TABLE public.patrimonios ADD COLUMN IF NOT EXISTS responsavel_uso text;

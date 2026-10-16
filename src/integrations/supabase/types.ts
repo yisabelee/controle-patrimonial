@@ -95,6 +95,7 @@ export type Database = {
           localizacao_id: string
           numero: string
           observacoes: string | null
+          responsavel_uso: string | null
           setor_id: string
           status: Database["public"]["Enums"]["status_conferencia"]
           ultima_conferencia: string | null
@@ -108,6 +109,7 @@ export type Database = {
           localizacao_id: string
           numero: string
           observacoes?: string | null
+          responsavel_uso?: string | null
           setor_id: string
           status?: Database["public"]["Enums"]["status_conferencia"]
           ultima_conferencia?: string | null
@@ -121,6 +123,7 @@ export type Database = {
           localizacao_id?: string
           numero?: string
           observacoes?: string | null
+          responsavel_uso?: string | null
           setor_id?: string
           status?: Database["public"]["Enums"]["status_conferencia"]
           ultima_conferencia?: string | null

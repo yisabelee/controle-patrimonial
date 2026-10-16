@@ -3,6 +3,8 @@ import { queryOptions, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { resolver, type Opcao, type Patrimonio } from "./patrimonio";
 
+const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
+
 export const patrimoniosQuery = queryOptions({
   queryKey: ["patrimonios"],
   queryFn: async (): Promise<Patrimonio[]> => {
@@ -116,14 +118,16 @@ export function usePapeis() {
     queryFn: async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return { userId: null, email: null, admin: false, conferente: false };
+      const email = (u.user.email ?? "").trim().toLocaleLowerCase("pt-BR");
       const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
       if (error) throw error;
       const roles = data.map((r) => r.role);
+      const adminAutorizado = email === ADMIN_EMAIL && roles.includes("admin");
       return {
         userId: u.user.id,
         email: u.user.email ?? null,
-        admin: roles.includes("admin"),
-        conferente: roles.includes("admin") || roles.includes("conferente"),
+        admin: adminAutorizado,
+        conferente: adminAutorizado || roles.includes("conferente"),
       };
     },
   });

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Boxes, FileBarChart, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { ArrowRight, Boxes, FileBarChart, LayoutDashboard, ShieldCheck, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePapeis } from "@/lib/data";
 
@@ -57,9 +57,14 @@ function Index() {
               <span className="block text-xs text-muted-foreground">Fundação de Apoio à Pesquisa do DF</span>
             </span>
           </Link>
-          <Button asChild variant="outline" size="sm">
-            <Link to={adminPath}>{isAdmin ? "Abrir administração" : "Área do administrador"} <ArrowRight className="ml-2 size-4" /></Link>
-          </Button>
+          <nav aria-label="Navegação principal" className="flex items-center gap-2 sm:gap-4">
+            <a href="#sobre" className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+              <Info className="size-4" /> <span>Sobre</span>
+            </a>
+            <Button asChild variant="outline" size="sm">
+              <Link to={adminPath}>{isAdmin ? "Abrir administração" : "Área do administrador"} <ArrowRight className="ml-2 size-4" /></Link>
+            </Button>
+          </nav>
         </div>
       </header>
 
@@ -106,6 +111,29 @@ function Index() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{card.descricao}</p>
               </Link>
             ))}
+          </div>
+        </section>
+
+        <section id="sobre" className="mt-12 scroll-mt-8 rounded-3xl border bg-card px-6 py-8 sm:px-10 sm:py-10">
+          <div className="max-w-3xl">
+            <p className="text-sm font-medium text-primary">Sobre a plataforma</p>
+            <h2 className="mt-2 font-display text-2xl font-semibold sm:text-3xl">Fundação de Apoio à Pesquisa do Distrito Federal</h2>
+            <h3 className="mt-2 text-base font-semibold text-muted-foreground">Gerência de Patrimônio e Transporte</h3>
+            <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
+              Este hub reúne ferramentas digitais desenvolvidas para facilitar a organização, o gerenciamento de informações e o acompanhamento dos bens patrimoniais da FAPDF. A plataforma busca tornar as consultas mais práticas, apoiar o controle dos registros e centralizar informações importantes para as atividades da Gerência de Patrimônio e Transporte.
+            </p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-3">
+              {[
+                { titulo: "Organização", descricao: "Informações estruturadas para facilitar o acompanhamento." },
+                { titulo: "Centralização", descricao: "Dados patrimoniais reunidos em um único ambiente." },
+                { titulo: "Eficiência", descricao: "Mais praticidade na consulta e no gerenciamento." },
+              ].map((item) => (
+                <div key={item.titulo} className="rounded-2xl bg-muted/60 p-4">
+                  <h4 className="font-semibold">{item.titulo}</h4>
+                  <p className="mt-1 text-sm leading-5 text-muted-foreground">{item.descricao}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 

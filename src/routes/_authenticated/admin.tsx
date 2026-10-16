@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Power, ShieldCheck, PackagePlus } from "lucide-react";
+import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, setoresQuery, localizacoesQuery } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PatrimonioForm } from "@/components/PatrimonioForm";
+import { ImportarPatrimonios } from "@/components/ImportarPatrimonios";
 
 const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
 
@@ -36,6 +37,7 @@ function Administracao() {
   const { data: papeis } = usePapeis();
   const qc = useQueryClient();
   const [novoAberto, setNovoAberto] = useState(false);
+  const [importacaoAberta, setImportacaoAberta] = useState(false);
   const { data: setores = [] } = useQuery(setoresQuery);
   const { data: localizacoes = [] } = useQuery(localizacoesQuery);
   const setoresAtivos = setores.filter((item) => item.ativo);
@@ -57,7 +59,7 @@ function Administracao() {
         </p>
       </div>
 
-      <section className="flex flex-col gap-4 rounded-xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col gap-4 rounded-xl border bg-card p-5 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex items-start gap-3">
           <div className="rounded-lg bg-primary/10 p-3 text-primary">
             <PackagePlus className="size-6" />
@@ -65,7 +67,7 @@ function Administracao() {
           <div>
             <h2 className="font-semibold">Cadastro de patrimônios</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Adicione um bem informando número, descrição, setor da carga, localização atual, status e observações.
+              Cadastre um bem manualmente ou importe vários patrimônios de uma planilha Excel ou CSV.
             </p>
             {(!setoresAtivos.length || !localizacoesAtivas.length) && (
               <p className="mt-2 text-sm text-amber-700">
@@ -74,9 +76,14 @@ function Administracao() {
             )}
           </div>
         </div>
-        <Button onClick={() => setNovoAberto(true)} disabled={!setoresAtivos.length || !localizacoesAtivas.length} className="shrink-0">
-          <Plus className="size-4" /> Novo patrimônio
-        </Button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setImportacaoAberta(true)} disabled={!setoresAtivos.length || !localizacoesAtivas.length}>
+            <FileSpreadsheet className="size-4" /> Importar planilha
+          </Button>
+          <Button onClick={() => setNovoAberto(true)} disabled={!setoresAtivos.length || !localizacoesAtivas.length}>
+            <Plus className="size-4" /> Novo patrimônio
+          </Button>
+        </div>
       </section>
 
       <div className="grid gap-5 lg:grid-cols-2">
@@ -91,6 +98,13 @@ function Administracao() {
       <PatrimonioForm
         open={novoAberto}
         onOpenChange={setNovoAberto}
+        setores={setoresAtivos}
+        localizacoes={localizacoesAtivas}
+      />
+
+      <ImportarPatrimonios
+        open={importacaoAberta}
+        onOpenChange={setImportacaoAberta}
         setores={setoresAtivos}
         localizacoes={localizacoesAtivas}
       />

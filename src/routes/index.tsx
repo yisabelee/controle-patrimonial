@@ -81,7 +81,6 @@ function Index() {
             </h1>
             <p className="mt-4 max-w-2xl text-sm leading-6 text-sidebar-foreground/75 sm:text-base">
               Pesquise os bens, verifique a carga patrimonial e consulte as informações disponíveis.
-              A entrada é livre para consulta; somente a administração exige login.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button asChild size="lg" className="bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90">

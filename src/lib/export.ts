@@ -31,6 +31,7 @@ export async function exportarExcel(rows: PatrimonioView[], filtros: string[]) {
     { header: "Descrição do bem", key: "descricao", width: 42 },
     { header: "Setor responsável pela carga", key: "setor", width: 30 },
     { header: "Localização atual", key: "localizacao", width: 28 },
+    { header: "Quem utiliza o bem", key: "responsavel", width: 26 },
     { header: "Última data de conferência", key: "data", width: 18 },
     { header: "Status da conferência", key: "status", width: 18 },
     { header: "Observações", key: "obs", width: 50 },
@@ -41,6 +42,7 @@ export async function exportarExcel(rows: PatrimonioView[], filtros: string[]) {
       descricao: r.descricao,
       setor: r.setor,
       localizacao: r.localizacao,
+      responsavel: r.responsavel_uso ?? "",
       data: formatarData(r.ultima_conferencia),
       status: STATUS_LABEL[r.status],
       obs: r.observacoes ?? "",
@@ -54,7 +56,7 @@ export async function exportarExcel(rows: PatrimonioView[], filtros: string[]) {
   ws.eachRow((row, i) => {
     if (i > 1) row.alignment = { vertical: "top", wrapText: true };
   });
-  ws.autoFilter = { from: "A1", to: "G1" };
+  ws.autoFilter = { from: "A1", to: "H1" };
 
   const r = resumir(rows);
   const info = wb.addWorksheet("Resumo");
@@ -106,12 +108,13 @@ export async function exportarPdf(rows: PatrimonioView[], filtros: string[]) {
   autoTable(doc, {
     startY: 37,
     margin: { left: 12, right: 12, bottom: 14 },
-    head: [["Número", "Descrição do bem", "Setor da carga", "Localização atual", "Últ. conferência", "Status", "Observações"]],
+    head: [["Número", "Descrição do bem", "Setor da carga", "Localização atual", "Quem utiliza", "Últ. conferência", "Status", "Observações"]],
     body: rows.map((x) => [
       x.numero,
       x.descricao,
       x.setor,
       x.localizacao,
+      x.responsavel_uso ?? "",
       formatarData(x.ultima_conferencia),
       STATUS_LABEL[x.status],
       x.observacoes ?? "",
@@ -124,12 +127,13 @@ export async function exportarPdf(rows: PatrimonioView[], filtros: string[]) {
       1: { cellWidth: 60 },
       2: { cellWidth: 38 },
       3: { cellWidth: 36 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 24 },
-      6: { cellWidth: "auto" },
+      4: { cellWidth: 30 },
+      5: { cellWidth: 22 },
+      6: { cellWidth: 24 },
+      7: { cellWidth: "auto" },
     },
     didParseCell: (d) => {
-      if (d.section === "body" && d.column.index === 5) {
+      if (d.section === "body" && d.column.index === 6) {
         const v = String(d.cell.raw);
         d.cell.styles.fontStyle = "bold";
         d.cell.styles.textColor =

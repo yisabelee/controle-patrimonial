@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet } from "lucide-react";
+import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, setoresQuery, localizacoesQuery } from "@/lib/data";
@@ -115,6 +115,9 @@ function Administracao() {
 function CatalogoCard({ titulo, tabela, qc }: { titulo: string; tabela: Catalogo; qc: ReturnType<typeof useQueryClient> }) {
   const [nome, setNome] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const [nomeEditado, setNomeEditado] = useState("");
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const { data = [], isLoading, error } = useQuery({
     queryKey: ["admin-catalogo", tabela],
     queryFn: async (): Promise<Registro[]> => {
@@ -144,6 +147,49 @@ function CatalogoCard({ titulo, tabela, qc }: { titulo: string; tabela: Catalogo
     toast.success("Registro adicionado.");
   }
 
+  function iniciarEdicao(item: Registro) {
+    setEditandoId(item.id);
+    setNomeEditado(item.nome);
+  }
+
+  function cancelarEdicao() {
+    setEditandoId(null);
+    setNomeEditado("");
+  }
+
+  async function salvarEdicao(item: Registro) {
+    const valor = nomeEditado.trim();
+    if (!valor) {
+      toast.error("Informe um nome para a localização.");
+      return;
+    }
+    const normalizar = (texto: string) => texto.trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/\\s+/g, " ");
+    if (data.some((registro) => registro.id !== item.id && normalizar(registro.nome) === normalizar(valor))) {
+      toast.error("Já existe uma localização com esse nome.");
+      return;
+    }
+    if (valor === item.nome) {
+      cancelarEdicao();
+      return;
+    }
+
+    setSalvandoEdicao(true);
+    const { error } = await supabase.from(tabela).update({ nome: valor }).eq("id", item.id);
+    setSalvandoEdicao(false);
+    if (error) {
+      toast.error(error.code === "42501" ? "Você não tem permissão para editar esta localização." : `Não foi possível salvar a alteração: ${error.message}`);
+      return;
+    }
+
+    cancelarEdicao();
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["admin-catalogo", tabela] }),
+      qc.invalidateQueries({ queryKey: [tabela] }),
+      qc.invalidateQueries({ queryKey: ["patrimonios"] }),
+    ]);
+    toast.success("Nome da localização atualizado.");
+  }
+
   async function alternar(item: Registro) {
     const { error } = await supabase.from(tabela).update({ ativo: !item.ativo }).eq("id", item.id);
     if (error) { toast.error(error.code === "42501" ? "Você não tem permissão para esta operação." : error.message); return; }
@@ -166,10 +212,41 @@ function CatalogoCard({ titulo, tabela, qc }: { titulo: string; tabela: Catalogo
         <ul className="mt-4 divide-y">
           {data.map((item) => (
             <li key={item.id} className="flex items-center justify-between gap-3 py-2">
-              <span className={item.ativo ? "" : "text-muted-foreground line-through"}>{item.nome}{!item.ativo && <span className="ml-2 text-xs no-underline">(inativo)</span>}</span>
-              <Button type="button" variant="outline" size="sm" onClick={() => alternar(item)}>
-                <Power className="size-3.5" /> {item.ativo ? "Desativar" : "Reativar"}
-              </Button>
+              {tabela === "localizacoes" && editandoId === item.id ? (
+                <form
+                  className="flex min-w-0 flex-1 items-center gap-2"
+                  onSubmit={(e) => { e.preventDefault(); void salvarEdicao(item); }}
+                >
+                  <Input
+                    autoFocus
+                    value={nomeEditado}
+                    onChange={(e) => setNomeEditado(e.target.value)}
+                    aria-label="Corrigir nome da localização"
+                    maxLength={150}
+                    disabled={salvandoEdicao}
+                  />
+                  <Button type="submit" size="sm" disabled={salvandoEdicao} aria-label="Salvar nome da localização">
+                    <Check className="size-4" /> Salvar
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" disabled={salvandoEdicao} onClick={cancelarEdicao} aria-label="Cancelar edição">
+                    <X className="size-4" />
+                  </Button>
+                </form>
+              ) : (
+                <span className={`min-w-0 flex-1 break-words ${item.ativo ? "" : "text-muted-foreground line-through"}`}>
+                  {item.nome}{!item.ativo && <span className="ml-2 text-xs no-underline">(inativo)</span>}
+                </span>
+              )}
+              <div className="flex shrink-0 items-center gap-2">
+                {tabela === "localizacoes" && editandoId !== item.id && (
+                  <Button type="button" variant="outline" size="sm" onClick={() => iniciarEdicao(item)} aria-label={`Editar localização ${item.nome}`}>
+                    <Pencil className="size-3.5" /> Editar
+                  </Button>
+                )}
+                <Button type="button" variant="outline" size="sm" onClick={() => alternar(item)} disabled={editandoId === item.id || salvandoEdicao}>
+                  <Power className="size-3.5" /> {item.ativo ? "Desativar" : "Reativar"}
+                </Button>
+              </div>
             </li>
           ))}
           {!data.length && <li className="py-4 text-sm text-muted-foreground">Nenhum registro cadastrado.</li>}

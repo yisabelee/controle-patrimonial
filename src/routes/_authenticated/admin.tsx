@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Power, ShieldCheck } from "lucide-react";
+import { Plus, Power, ShieldCheck, PackagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { usePapeis } from "@/lib/data";
+import { usePapeis, setoresQuery, localizacoesQuery } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PatrimonioForm } from "@/components/PatrimonioForm";
 
 const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
 
@@ -34,6 +35,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
 function Administracao() {
   const { data: papeis } = usePapeis();
   const qc = useQueryClient();
+  const [novoAberto, setNovoAberto] = useState(false);
+  const { data: setores = [] } = useQuery(setoresQuery);
+  const { data: localizacoes = [] } = useQuery(localizacoesQuery);
+  const setoresAtivos = setores.filter((item) => item.ativo);
+  const localizacoesAtivas = localizacoes.filter((item) => item.ativo);
 
   if (!papeis?.admin || papeis.email?.trim().toLocaleLowerCase("pt-BR") !== ADMIN_EMAIL) {
     return <p className="rounded-md border p-4 text-sm text-muted-foreground">Verificando suas permissões…</p>;
@@ -44,20 +50,50 @@ function Administracao() {
       <div>
         <div className="flex items-center gap-2">
           <ShieldCheck className="size-5 text-primary" />
-          <h1 className="text-2xl font-semibold">Administração</h1>
+          <h1 className="text-2xl font-semibold">Área administrativa</h1>
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
-          Gerencie os setores de carga e as localizações disponíveis no Controle Patrimonial da FAPDF.
-          Os registros são desativados, e não apagados, para preservar o histórico dos bens.
+          Cadastre patrimônios e gerencie os setores responsáveis pela carga e as localizações disponíveis no Controle Patrimonial da FAPDF.
         </p>
       </div>
+
+      <section className="flex flex-col gap-4 rounded-xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="rounded-lg bg-primary/10 p-3 text-primary">
+            <PackagePlus className="size-6" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Cadastro de patrimônios</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Adicione um bem informando número, descrição, setor da carga, localização atual, status e observações.
+            </p>
+            {(!setoresAtivos.length || !localizacoesAtivas.length) && (
+              <p className="mt-2 text-sm text-amber-700">
+                Para cadastrar, primeiro adicione ao menos um setor e uma localização nas opções abaixo.
+              </p>
+            )}
+          </div>
+        </div>
+        <Button onClick={() => setNovoAberto(true)} disabled={!setoresAtivos.length || !localizacoesAtivas.length} className="shrink-0">
+          <Plus className="size-4" /> Novo patrimônio
+        </Button>
+      </section>
+
       <div className="grid gap-5 lg:grid-cols-2">
         <CatalogoCard titulo="Setores da carga" tabela="setores" qc={qc} />
         <CatalogoCard titulo="Localizações atuais" tabela="localizacoes" qc={qc} />
       </div>
+
       <p className="text-xs text-muted-foreground">
         Área restrita à conta administradora autorizada. As operações também são protegidas pelas políticas do banco de dados.
       </p>
+
+      <PatrimonioForm
+        open={novoAberto}
+        onOpenChange={setNovoAberto}
+        setores={setoresAtivos}
+        localizacoes={localizacoesAtivas}
+      />
     </div>
   );
 }

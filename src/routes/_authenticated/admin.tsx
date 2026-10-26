@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet, Pencil, Check, X, Trash2 } from "lucide-react";
+import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet, Pencil, Check, X, Trash2, History, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, setoresQuery, localizacoesQuery } from "@/lib/data";
@@ -38,6 +38,14 @@ function Administracao() {
   const qc = useQueryClient();
   const [novoAberto, setNovoAberto] = useState(false);
   const [importacaoAberta, setImportacaoAberta] = useState(false);
+  const { data: ultimasAlteracoes = [], isLoading: carregandoAlteracoes, error: erroAlteracoes } = useQuery({
+    queryKey: ["admin-ultimas-alteracoes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("patrimonios").select("id,numero,descricao,created_at,updated_at").order("updated_at", { ascending: false }).limit(10);
+      if (error) throw error;
+      return data;
+    },
+  });
   const { data: setores = [] } = useQuery(setoresQuery);
   const { data: localizacoes = [] } = useQuery(localizacoesQuery);
   const setoresAtivos = setores.filter((item) => item.ativo);
@@ -84,6 +92,20 @@ function Administracao() {
             <Plus className="size-4" /> Novo patrimônio
           </Button>
         </div>
+      </section>
+
+      <section className="rounded-xl border bg-card p-5">
+        <div className="flex items-start gap-3">
+          <div className="rounded-lg bg-primary/10 p-3 text-primary"><History className="size-5" /></div>
+          <div className="min-w-0 flex-1"><h2 className="font-semibold">Últimas alterações</h2><p className="mt-1 text-sm text-muted-foreground">Acompanhe os 10 patrimônios modificados mais recentemente no sistema.</p></div>
+        </div>
+        {carregandoAlteracoes ? <p className="mt-4 text-sm text-muted-foreground">Carregando alterações…</p> : erroAlteracoes ? <p className="mt-4 text-sm text-destructive">Não foi possível carregar as últimas alterações.</p> : ultimasAlteracoes.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Ainda não há patrimônios cadastrados.</p> : (
+          <ul className="mt-4 divide-y">{ultimasAlteracoes.map((item) => {
+            const criado = item.created_at && item.updated_at && Math.abs(new Date(item.created_at).getTime() - new Date(item.updated_at).getTime()) < 5000;
+            const data = item.updated_at || item.created_at;
+            return <li key={item.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"><div className="min-w-0"><p className="break-words text-sm font-medium">{item.numero} — {item.descricao}</p><p className="text-xs text-muted-foreground">{criado ? "Cadastro realizado" : "Patrimônio atualizado"}</p></div><p className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground"><Clock className="size-3.5" />{data ? new Date(data).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "Data indisponível"}</p></li>;
+          })}</ul>
+        )}
       </section>
 
       <div className="grid gap-5 lg:grid-cols-2">

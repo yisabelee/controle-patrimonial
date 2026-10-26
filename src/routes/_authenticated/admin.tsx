@@ -38,10 +38,19 @@ function Administracao() {
   const qc = useQueryClient();
   const [novoAberto, setNovoAberto] = useState(false);
   const [importacaoAberta, setImportacaoAberta] = useState(false);
+  const [dataAlteracao, setDataAlteracao] = useState("");
   const { data: ultimasAlteracoes = [], isLoading: carregandoAlteracoes, error: erroAlteracoes } = useQuery({
-    queryKey: ["admin-ultimas-alteracoes"],
+    queryKey: ["admin-ultimas-alteracoes", dataAlteracao],
     queryFn: async () => {
-      const { data, error } = await supabase.from("patrimonios").select("id,numero,descricao,created_at,updated_at").order("updated_at", { ascending: false }).limit(10);
+      let consulta = supabase.from("patrimonios").select("id,numero,descricao,created_at,updated_at").order("updated_at", { ascending: false });
+      if (dataAlteracao) {
+        const inicio = new Date(`${dataAlteracao}T00:00:00`).toISOString();
+        const fim = new Date(`${dataAlteracao}T23:59:59.999`).toISOString();
+        consulta = consulta.gte("updated_at", inicio).lte("updated_at", fim);
+      } else {
+        consulta = consulta.limit(10);
+      }
+      const { data, error } = await consulta;
       if (error) throw error;
       return data;
     },
@@ -97,8 +106,10 @@ function Administracao() {
       <section className="rounded-xl border bg-card p-5">
         <div className="flex items-start gap-3">
           <div className="rounded-lg bg-primary/10 p-3 text-primary"><History className="size-5" /></div>
-          <div className="min-w-0 flex-1"><h2 className="font-semibold">Últimas alterações</h2><p className="mt-1 text-sm text-muted-foreground">Acompanhe os 10 patrimônios modificados mais recentemente no sistema.</p></div>
+          <div className="min-w-0 flex-1"><h2 className="font-semibold">Últimas alterações</h2><p className="mt-1 text-sm text-muted-foreground">Acompanhe as alterações recentes ou selecione uma data para consultar os registros modificados naquele dia.</p></div>
         </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-end"><div className="grid gap-1.5"><label htmlFor="data-alteracoes" className="text-sm font-medium">Consultar por data</label><Input id="data-alteracoes" type="date" value={dataAlteracao} onChange={(e) => setDataAlteracao(e.target.value)} className="w-full sm:w-56" /></div>{dataAlteracao && <Button type="button" variant="outline" onClick={() => setDataAlteracao("")}>Limpar data</Button>}</div>
+        {dataAlteracao && <p className="mt-2 text-sm text-muted-foreground">Exibindo alterações do dia {dataAlteracao.split("-").reverse().join("/")}.</p>}
         {carregandoAlteracoes ? <p className="mt-4 text-sm text-muted-foreground">Carregando alterações…</p> : erroAlteracoes ? <p className="mt-4 text-sm text-destructive">Não foi possível carregar as últimas alterações.</p> : ultimasAlteracoes.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Ainda não há patrimônios cadastrados.</p> : (
           <ul className="mt-4 divide-y">{ultimasAlteracoes.map((item) => {
             const criado = item.created_at && item.updated_at && Math.abs(new Date(item.created_at).getTime() - new Date(item.updated_at).getTime()) < 5000;

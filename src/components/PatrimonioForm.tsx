@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { LeitorFotoPatrimonio } from "@/components/LeitorFotoPatrimonio";
 import { Campo, NativeSelect, OpcoesSelect } from "@/components/campos";
 import { supabase } from "@/integrations/supabase/client";
 import { useInvalidarAcervo } from "@/lib/data";
@@ -102,7 +103,11 @@ export function PatrimonioForm({ open, onOpenChange, editando, setores, localiza
         <form onSubmit={salvar} className="space-y-3" noValidate>
           <div className="grid gap-3 sm:grid-cols-[1fr_2fr]">
             <Campo label="Número do patrimônio *" htmlFor="numero" erro={erros["numero"]}>
-              <Input id="numero" value={v.numero} onChange={(e) => setV({ ...v, numero: e.target.value })} className="num-tag" />
+              <div className="flex gap-2">
+                <Input id="numero" value={v.numero} onChange={(e) => setV({ ...v, numero: e.target.value })} className="num-tag min-w-0" />
+                <LeitorFotoPatrimonio compacto onNumeroReconhecido={(numero) => setV((atual) => ({ ...atual, numero }))} />
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Fotografe a etiqueta para tentar preencher o tombamento automaticamente.</p>
             </Campo>
             <Campo label="Descrição do bem *" htmlFor="descricao" erro={erros["descricao"]}>
               <Input id="descricao" value={v.descricao} onChange={(e) => setV({ ...v, descricao: e.target.value })} />

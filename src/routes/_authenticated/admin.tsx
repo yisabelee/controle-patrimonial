@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet, Pencil, Check, X } from "lucide-react";
+import { Plus, Power, ShieldCheck, PackagePlus, FileSpreadsheet, Pencil, Check, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, setoresQuery, localizacoesQuery } from "@/lib/data";
@@ -190,6 +190,30 @@ function CatalogoCard({ titulo, tabela, qc }: { titulo: string; tabela: Catalogo
     toast.success("Nome da localização atualizado.");
   }
 
+  async function excluir(item: Registro) {
+    const tipo = tabela === "setores" ? "setor da carga" : "localização";
+    const confirmado = window.confirm(`Deseja excluir definitivamente ${tipo} "${item.nome}"? Se estiver vinculado a patrimônios, o sistema poderá impedir a exclusão.`);
+    if (!confirmado) return;
+
+    const { error } = await supabase.from(tabela).delete().eq("id", item.id);
+    if (error) {
+      toast.error(
+        error.code === "42501"
+          ? "Você não tem permissão para excluir este registro."
+          : "Não foi possível excluir. Verifique se este registro está vinculado a algum patrimônio."
+      );
+      return;
+    }
+
+    if (editandoId === item.id) cancelarEdicao();
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["admin-catalogo", tabela] }),
+      qc.invalidateQueries({ queryKey: [tabela] }),
+      qc.invalidateQueries({ queryKey: ["patrimonios"] }),
+    ]);
+    toast.success(`${tipo === "setor da carga" ? "Setor" : "Localização"} excluído(a).`);
+  }
+
   async function alternar(item: Registro) {
     const { error } = await supabase.from(tabela).update({ ativo: !item.ativo }).eq("id", item.id);
     if (error) { toast.error(error.code === "42501" ? "Você não tem permissão para esta operação." : error.message); return; }
@@ -245,6 +269,9 @@ function CatalogoCard({ titulo, tabela, qc }: { titulo: string; tabela: Catalogo
                 )}
                 <Button type="button" variant="outline" size="sm" onClick={() => alternar(item)} disabled={editandoId === item.id || salvandoEdicao}>
                   <Power className="size-3.5" /> {item.ativo ? "Desativar" : "Reativar"}
+                </Button>
+                <Button type="button" variant="destructive" size="icon" onClick={() => void excluir(item)} disabled={editandoId === item.id || salvandoEdicao} aria-label={`Excluir ${tabela === "setores" ? "setor" : "localização"} ${item.nome}`} title="Excluir definitivamente">
+                  <Trash2 className="size-4" />
                 </Button>
               </div>
             </li>

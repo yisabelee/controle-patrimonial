@@ -1,6 +1,7 @@
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LeitorFotoPatrimonio } from "@/components/LeitorFotoPatrimonio";
 import { NativeSelect, OpcoesSelect } from "@/components/campos";
 import { FILTROS_VAZIOS, type Filtros, type Opcao, type Status } from "@/lib/patrimonio";
 
@@ -18,15 +19,18 @@ export function FiltrosBar({
   const ativo = JSON.stringify(f) !== JSON.stringify(FILTROS_VAZIOS);
   return (
     <div className="grid gap-2 rounded-lg border bg-card p-3 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1fr_auto_auto_auto]">
-      <div className="relative sm:col-span-2 lg:col-span-1">
-        <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          aria-label="Pesquisar"
-          placeholder="Pesquisar número, bem, setor, local, status ou observação"
-          value={f.busca}
-          onChange={(e) => set({ ...f, busca: e.target.value })}
-          className="pl-8"
-        />
+      <div className="flex min-w-0 gap-2 sm:col-span-2 lg:col-span-1">
+        <div className="relative min-w-0 flex-1">
+          <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            aria-label="Pesquisar"
+            placeholder="Pesquisar número, bem, setor, local, status ou observação"
+            value={f.busca}
+            onChange={(e) => set({ ...f, busca: e.target.value })}
+            className="pl-8"
+          />
+        </div>
+        <LeitorFotoPatrimonio compacto onNumeroReconhecido={(numero) => set({ ...f, busca: numero })} />
       </div>
       <OpcoesSelect todos opcoes={setores} value={f.setorId} onChange={(v) => set({ ...f, setorId: v })} placeholder="Todos os setores" />
       <OpcoesSelect todos opcoes={localizacoes} value={f.localizacaoId} onChange={(v) => set({ ...f, localizacaoId: v })} placeholder="Todas as localizações" />

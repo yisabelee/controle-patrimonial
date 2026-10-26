@@ -73,9 +73,18 @@ export function aplicarFiltros(rows: PatrimonioView[], f: Filtros): PatrimonioVi
   const q = f.busca.trim().toLowerCase();
   return rows.filter((r) => {
     if (!f.incluirTeste && r.is_teste) return false;
-    if (q && ![
-      r.numero, r.descricao, r.setor, r.localizacao, r.responsavel_uso ?? "", r.status, STATUS_LABEL[r.status], r.observacoes ?? "",
-    ].some((valor) => valor.toLocaleLowerCase("pt-BR").includes(q))) return false;
+    if (q) {
+      const camposTexto = [
+        r.numero, r.descricao, r.setor, r.localizacao, r.responsavel_uso ?? "", r.status, STATUS_LABEL[r.status], r.observacoes ?? "",
+      ];
+      const encontrouTexto = camposTexto.some((valor) => valor.toLocaleLowerCase("pt-BR").includes(q));
+      // Ao pesquisar por tombamento numérico, ignora pontos, espaços e hífens
+      // que possam existir no cadastro ou ser inseridos pela leitura da foto.
+      const buscaNumerica = q.replace(/\D/g, "");
+      const numeroCadastrado = r.numero.replace(/\D/g, "");
+      const encontrouNumero = /^\d[\d\s.-]*$/.test(q) && buscaNumerica.length >= 5 && numeroCadastrado.includes(buscaNumerica);
+      if (!encontrouTexto && !encontrouNumero) return false;
+    }
     if (f.setorId && r.setor_id !== f.setorId) return false;
     if (f.localizacaoId && r.localizacao_id !== f.localizacaoId) return false;
     if (f.status && r.status !== f.status) return false;

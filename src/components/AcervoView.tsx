@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FileSpreadsheet, FileText, Plus } from "lucide-react";
+import { AlertTriangle, FileSpreadsheet, FileText, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FiltrosBar } from "@/components/FiltrosBar";
@@ -30,6 +30,7 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
   const setoresAtivos = setores.filter((item) => item.ativo);
   const localizacoesAtivas = localizacoes.filter((item) => item.ativo);
 
+  const naoEncontrados = useMemo(() => aplicarFiltros(estado.rows, { ...FILTROS_VAZIOS, incluirTeste: f.incluirTeste }).filter((r) => r.status === "nao_encontrado"), [estado.rows, f.incluirTeste]);
   const selecionadosVisiveis = filtrados.filter((r) => sel.has(r.id));
   const alvo = selecionadosVisiveis.length ? selecionadosVisiveis : filtrados;
   const descr = [
@@ -37,12 +38,14 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
     ...(selecionadosVisiveis.length ? [`Somente ${selecionadosVisiveis.length} registro(s) selecionado(s)`] : []),
   ];
 
-  async function exportar(tipo: "xlsx" | "pdf") {
-    if (!alvo.length) { toast.error("Não há registros para exportar."); return; }
+  async function exportar(tipo: "xlsx" | "pdf", somenteNaoEncontrados = false) {
+    const registros = somenteNaoEncontrados ? naoEncontrados : alvo;
+    if (!registros.length) { toast.error(somenteNaoEncontrados ? "Não há bens marcados como não encontrados." : "Não há registros para exportar."); return; }
     setExportando(true);
     try {
-      await (tipo === "xlsx" ? exportarExcel(alvo, descr) : exportarPdf(alvo, descr));
-      toast.success(`Arquivo ${tipo === "xlsx" ? "Excel" : "PDF"} gerado com ${alvo.length} registro(s)`);
+      const filtrosExportacao = somenteNaoEncontrados ? ["Relação de bens não encontrados"] : descr;
+      await (tipo === "xlsx" ? exportarExcel(registros, filtrosExportacao) : exportarPdf(registros, filtrosExportacao));
+      toast.success(`Arquivo ${tipo === "xlsx" ? "Excel" : "PDF"} gerado com ${registros.length} registro(s)`);
     } catch (e) {
       console.error(e);
       toast.error("Falha ao gerar o arquivo.");
@@ -66,6 +69,9 @@ export function AcervoView({ estado }: { estado: ReturnType<typeof useFiltrosAce
         </Button>
         <Button variant="outline" size="sm" disabled={exportando} onClick={() => exportar("pdf")}>
           <FileText className="size-4" /> PDF{selecionadosVisiveis.length ? " (seleção)" : ""}
+        </Button>
+        <Button variant="outline" size="sm" disabled={exportando || naoEncontrados.length === 0} onClick={() => exportar("xlsx", true)} title="Exportar somente os bens marcados como não encontrados">
+          <AlertTriangle className="size-4" /> Não encontrados ({naoEncontrados.length})
         </Button>
         {papeis?.admin && (
           <Button size="sm" onClick={() => setForm({ open: true, item: null })} disabled={!setoresAtivos.length || !localizacoesAtivas.length} title={!setoresAtivos.length || !localizacoesAtivas.length ? "Cadastre setores e localizações na Administração" : undefined}>

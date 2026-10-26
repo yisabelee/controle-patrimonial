@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Boxes, FileBarChart, LayoutDashboard, ShieldCheck, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,7 +17,6 @@ const ADMIN_EMAIL = "lopesyasmin690@gmail.com";
 
 function Index() {
   const { data: papeis } = usePapeis();
-  const [movimentoAtivo, setMovimentoAtivo] = useState(true);
   const isAdmin = Boolean(papeis?.admin && papeis.email?.trim().toLowerCase() === ADMIN_EMAIL);
   const adminPath = isAdmin ? "/admin" : "/auth";
 
@@ -65,20 +63,14 @@ function Index() {
 
       <main className="relative mx-auto max-w-6xl overflow-hidden px-5 pb-16 pt-10 sm:px-8 sm:pt-16">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-0 overflow-hidden">
-          <div className={`absolute -left-28 top-16 size-72 rounded-full bg-amber-300/20 blur-3xl ${movimentoAtivo ? "animate-[pulse_8s_ease-in-out_infinite]" : ""}`} />
-          <div className={`absolute -right-24 top-[28rem] size-96 rounded-full bg-sky-300/25 blur-3xl ${movimentoAtivo ? "animate-[pulse_10s_ease-in-out_infinite]" : ""}`} />
-          <div className={`absolute left-[48%] top-[38rem] size-64 rounded-full border border-[#365d77]/10 ${movimentoAtivo ? "animate-[spin_45s_linear_infinite]" : ""}`} />
-        </div>
-        <div className="relative z-10 mb-4 flex justify-end">
-          <Button type="button" variant="outline" size="sm" onClick={() => setMovimentoAtivo((ativo) => !ativo)} aria-pressed={movimentoAtivo} className="gap-2 border-slate-300/80 bg-white/70 text-slate-700 backdrop-blur hover:bg-white">
-            <span className={`inline-block size-2 rounded-full ${movimentoAtivo ? "animate-pulse bg-emerald-500" : "bg-slate-400"}`} />
-            {movimentoAtivo ? "Pausar animação" : "Ativar animação"}
-          </Button>
+          <div className={`absolute -left-28 top-16 size-72 rounded-full bg-amber-300/20 blur-3xl animate-[pulse_8s_ease-in-out_infinite]`} />
+          <div className={`absolute -right-24 top-[28rem] size-96 rounded-full bg-sky-300/25 blur-3xl animate-[pulse_10s_ease-in-out_infinite]`} />
+          <div className={`absolute left-[48%] top-[38rem] size-64 rounded-full border border-[#365d77]/10 animate-[spin_45s_linear_infinite]`} />
         </div>
         <section className="relative isolate overflow-hidden rounded-[2rem] px-6 py-10 text-white shadow-2xl sm:px-12 sm:py-16" style={{ background: "linear-gradient(115deg, #203f53 0%, #365d77 58%, #547c91 100%)" }}>
-          <div aria-hidden="true" className={`pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-white/20 ${movimentoAtivo ? "animate-[spin_32s_linear_infinite]" : ""}`} />
-          <div aria-hidden="true" className={`pointer-events-none absolute -right-4 -top-10 size-64 rounded-full border-[24px] border-white/5 ${movimentoAtivo ? "animate-[spin_42s_linear_infinite_reverse]" : ""}`} />
-          <div aria-hidden="true" className={`pointer-events-none absolute bottom-[-8rem] left-[35%] size-72 rounded-full border-[36px] border-[#e2a22a]/15 ${movimentoAtivo ? "animate-[pulse_7s_ease-in-out_infinite]" : ""}`} />
+          <div aria-hidden="true" className={`pointer-events-none absolute -right-20 -top-24 size-80 rounded-full border border-white/20 animate-[spin_32s_linear_infinite]`} />
+          <div aria-hidden="true" className={`pointer-events-none absolute -right-4 -top-10 size-64 rounded-full border-[24px] border-white/5 animate-[spin_42s_linear_infinite_reverse]`} />
+          <div aria-hidden="true" className={`pointer-events-none absolute bottom-[-8rem] left-[35%] size-72 rounded-full border-[36px] border-[#e2a22a]/15 animate-[pulse_7s_ease-in-out_infinite]`} />
           <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-24 size-80 rounded-full border-[1px] border-white/15" /><div aria-hidden="true" className="pointer-events-none absolute -right-2 -top-10 size-64 rounded-full border-[28px] border-white/5" /><div aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-[42%] size-72 rounded-full border-[36px] border-[#e2a22a]/15" /><div aria-hidden="true" className="pointer-events-none right-0 top-0 h-full w-1.5 absolute bg-[#e2a22a]" />
           <div className="relative max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-medium tracking-wide text-white/90"><span className="size-2 rounded-full bg-[#e2a22a]" /> GESTÃO PATRIMONIAL</div><h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">

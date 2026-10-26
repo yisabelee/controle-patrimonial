@@ -29,13 +29,6 @@ function Index() {
       to: "/painel" as const,
     },
     {
-      titulo: "Relatórios patrimoniais",
-      descricao: "Consulte os registros e utilize as opções disponíveis para exportar os resultados.",
-      detalhe: "Consulta e exportação",
-      icon: FileBarChart,
-      to: "/relatorios" as const,
-    },
-    {
       titulo: "Área do administrador",
       descricao: "Cadastre, edite e remova patrimônios, setores e localizações.",
       detalhe: "Gerenciamento",
@@ -94,7 +87,7 @@ function Index() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#365d77]">Navegação</p>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight sm:text-3xl">O que você precisa acessar?</h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {cards.map((card) => (
               <Link key={card.titulo} to={card.to} className="group rounded-2xl border border-white/80 bg-white/85 p-5 shadow-[0_8px_30px_rgba(31,55,70,0.06)] backdrop-blur transition-all hover:-translate-y-1 hover:border-[#365d77]/30 hover:shadow-[0_18px_45px_rgba(31,55,70,0.12)] sm:p-6">
                 <div className="flex items-start justify-between gap-4">

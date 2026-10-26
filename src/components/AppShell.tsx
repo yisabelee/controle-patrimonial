@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Boxes, FileBarChart, Home, LayoutDashboard, LogIn, LogOut, ShieldCheck } from "lucide-react";
+import { Boxes, Home, LayoutDashboard, LogIn, LogOut, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePapeis, useRealtimeSync } from "@/lib/data";
@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { to: "/painel", label: "Consulta patrimonial", icon: LayoutDashboard },
-  { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {

@@ -8,7 +8,7 @@ import { useInvalidarAcervo } from "@/lib/data";
 import { supabase } from "@/integrations/supabase/client";
 import type { Opcao } from "@/lib/patrimonio";
 
-type CampoPlanilha = "numero" | "descricao" | "carga" | "localizacao" | "data" | "responsavel";
+type CampoPlanilha = "numero" | "descricao" | "carga" | "localizacao" | "data" | "responsavel" | "status";
 type Linha = {
   linha: number;
   numero: string;
@@ -17,6 +17,7 @@ type Linha = {
   localizacao: string;
   data: string;
   responsavel: string;
+  statusPatrimonio: "pendente" | "encontrado" | "nao_encontrado";
   setor_id: string | null;
   localizacao_id: string | null;
   status: "pronta" | "erro" | "duplicada";
@@ -36,6 +37,7 @@ const CAMPOS: { key: CampoPlanilha; label: string; required: boolean; aliases: s
   { key: "localizacao", label: "Localização atual", required: true, aliases: ["localizacaoatual", "localizacao", "localatual", "local"] },
   { key: "data", label: "Data da conferência", required: false, aliases: ["datadaconferencia", "ultimaconferencia", "dataconferencia", "ultimadatadeconferencia", "conferencia"] },
   { key: "responsavel", label: "Quem está utilizando o bem", required: false, aliases: ["quemestautilizando", "quemestautilizandoobem", "responsavelpelouso", "responsaveluso", "usuariodobem", "responsavel", "usuario"] },
+  { key: "status", label: "Status patrimonial", required: false, aliases: ["status", "situacao", "statuspatrimonial", "situacaopatrimonial", "resultado"] },
 ];
 
 function normalizarCabecalho(value: unknown) {
@@ -73,7 +75,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
   const [cabecalhos, setCabecalhos] = useState<string[]>([]);
   const [dados, setDados] = useState<unknown[][]>([]);
   const [mapeamento, setMapeamento] = useState<Record<CampoPlanilha, string>>({
-    numero: "", descricao: "", carga: "", localizacao: "", data: "", responsavel: "",
+    numero: "", descricao: "", carga: "", localizacao: "", data: "", responsavel: "", status: "",
   });
   const [linhas, setLinhas] = useState<Linha[]>([]);
   const [lendo, setLendo] = useState(false);
@@ -138,7 +140,14 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
     const vistos = new Set<string>();
     const novas: Linha[] = dados.map((row, i) => {
       const get = (campo: CampoPlanilha) => mapeamento[campo] === "" ? "" : texto(row[Number(mapeamento[campo])]);
-      const numero = get("numero"), descricao = get("descricao"), carga = get("carga"), localizacao = get("localizacao"), dataRaw = get("data"), responsavel = get("responsavel");
+      const numero = get("numero"), descricao = get("descricao"), carga = get("carga"), localizacao = get("localizacao"), dataRaw = get("data"), responsavel = get("responsavel"), statusRaw = get("status");
+      const statusNormalizado = nomeChave(statusRaw).replace(/[ _-]/g, "");
+      let statusPatrimonio: Linha["statusPatrimonio"] = "pendente";
+      if (statusRaw) {
+        if (["encontrado", "encontrada", "sim", "found"].includes(statusNormalizado)) statusPatrimonio = "encontrado";
+        else if (["naoencontrado", "naoencontrada", "naolocalizado", "naolocalizada", "nao", "notfound"].includes(statusNormalizado)) statusPatrimonio = "nao_encontrado";
+        else motivos.push(`Status inválido: “${statusRaw}”. Use ENCONTRADO ou NÃO ENCONTRADO.`);
+      }
       const motivos: string[] = [];
       const setor = mapaSetores.get(nomeChave(carga));
       const local = mapaLocais.get(nomeChave(localizacao));
@@ -155,7 +164,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
       if (numero && (numerosExistentes.has(numero) || vistos.has(numero))) {
         status = "duplicada"; motivos.splice(0, motivos.length, numerosExistentes.has(numero) ? "Tombamento já existe no sistema" : "Tombamento repetido na planilha");
       } else if (numero) vistos.add(numero);
-      return { linha: i + 2, numero, descricao, carga, localizacao, data: data ?? "", responsavel, setor_id: setor?.id ?? null, localizacao_id: local?.id ?? null, status, motivos };
+      return { linha: i + 2, numero, descricao, carga, localizacao, data: data ?? "", responsavel, statusPatrimonio, setor_id: setor?.id ?? null, localizacao_id: local?.id ?? null, status, motivos };
     });
     setLinhas(novas);
   }
@@ -170,7 +179,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
       const lote = prontos.slice(i, i + 100);
       const registros = lote.map((l) => ({
         numero: l.numero, descricao: l.descricao, setor_id: l.setor_id!, localizacao_id: l.localizacao_id!,
-        ultima_conferencia: l.data || null, status: l.data ? "encontrado" as const : "pendente" as const,
+        ultima_conferencia: l.data || null, status: l.statusPatrimonio,
         observacoes: null, responsavel_uso: l.responsavel || null, is_teste: false,
       }));
       let { error } = await supabase.from("patrimonios").insert(registros);
@@ -196,7 +205,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
     const rows = linhas.map((l) => ({
       Linha: l.linha, Tombamento: l.numero, Descricao: l.descricao, Carga: l.carga,
       "Localizacao atual": l.localizacao, "Data da conferencia": l.data, "Quem utiliza": l.responsavel,
-      Situacao: l.status, Motivo: l.motivos.join("; "),
+      Situacao: l.status, "Status patrimonial": l.statusPatrimonio === "encontrado" ? "ENCONTRADO" : l.statusPatrimonio === "nao_encontrado" ? "NÃO ENCONTRADO" : "PENDENTE", Motivo: l.motivos.join("; "),
     }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), "Resultado");
@@ -208,7 +217,7 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
       <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-6xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2"><FileSpreadsheet className="size-5 text-primary" /> Importar patrimônios por planilha</DialogTitle>
-          <DialogDescription>Importe tombamento, descrição, carga, localização atual, data da conferência e quem utiliza o bem.</DialogDescription>
+          <DialogDescription>Importe tombamento, descrição, carga, localização atual, data da conferência, quem utiliza o bem e status patrimonial.</DialogDescription>
         </DialogHeader>
 
         {fase === "arquivo" ? (
@@ -224,8 +233,8 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
             </div>
             <div className="rounded-lg bg-muted/50 p-3 text-sm">
               <p className="font-medium">Colunas esperadas</p>
-              <p className="mt-1 text-muted-foreground">TOMBAMENTO · DESCRIÇÃO · CARGA · LOCALIZAÇÃO ATUAL · DATA DA CONFERÊNCIA · QUEM ESTÁ UTILIZANDO O BEM</p>
-              <p className="mt-2 text-muted-foreground">A data e quem utiliza podem ficar vazios. Os setores e as localizações devem existir no sistema antes da importação.</p>
+              <p className="mt-1 text-muted-foreground">TOMBAMENTO · DESCRIÇÃO · CARGA · LOCALIZAÇÃO ATUAL · DATA DA CONFERÊNCIA · QUEM ESTÁ UTILIZANDO O BEM · STATUS</p>
+              <p className="mt-2 text-muted-foreground">A data, quem utiliza e status podem ficar vazios. No status, use ENCONTRADO ou NÃO ENCONTRADO; se não houver coluna/status, o patrimônio será importado como Pendente. Os setores e as localizações devem existir no sistema antes da importação.</p>
             </div>
           </div>
         ) : (
@@ -260,11 +269,11 @@ export function ImportarPatrimonios({ open, onOpenChange, setores, localizacoes 
                 <div className="max-h-[38vh] overflow-auto rounded-md border">
                   <table className="w-full min-w-[1050px] text-left text-xs">
                     <thead className="sticky top-0 bg-muted">
-                      <tr>{["Linha", "Tombamento", "Descrição", "Carga", "Localização", "Data", "Quem utiliza", "Situação"].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}</tr>
+                      <tr>{["Linha", "Tombamento", "Descrição", "Carga", "Localização", "Data", "Quem utiliza", "Status patrimonial", "Validação"].map((h) => <th key={h} className="px-3 py-2 font-semibold">{h}</th>)}</tr>
                     </thead>
                     <tbody>
                       {linhas.map((l) => <tr key={l.linha} className="border-t align-top">
-                        <td className="px-3 py-2">{l.linha}</td><td className="px-3 py-2">{l.numero || "—"}</td><td className="px-3 py-2">{l.descricao || "—"}</td><td className="px-3 py-2">{l.carga || "—"}</td><td className="px-3 py-2">{l.localizacao || "—"}</td><td className="px-3 py-2">{l.data || "—"}</td><td className="px-3 py-2">{l.responsavel || "—"}</td>
+                        <td className="px-3 py-2">{l.linha}</td><td className="px-3 py-2">{l.numero || "—"}</td><td className="px-3 py-2">{l.descricao || "—"}</td><td className="px-3 py-2">{l.carga || "—"}</td><td className="px-3 py-2">{l.localizacao || "—"}</td><td className="px-3 py-2">{l.data || "—"}</td><td className="px-3 py-2">{l.responsavel || "—"}</td><td className="px-3 py-2">{l.statusPatrimonio === "encontrado" ? "ENCONTRADO" : l.statusPatrimonio === "nao_encontrado" ? "NÃO ENCONTRADO" : "PENDENTE"}</td>
                         <td className="px-3 py-2"><span className={l.status === "pronta" ? "text-emerald-700" : l.status === "duplicada" ? "text-amber-700" : "text-destructive"}>{l.status === "pronta" ? "Pronta" : l.status === "duplicada" ? "Duplicada" : "Erro"}</span>{l.motivos.length > 0 && <p className="mt-1 max-w-64 whitespace-normal text-muted-foreground">{l.motivos.join("; ")}</p>}</td>
                       </tr>)}
                     </tbody>

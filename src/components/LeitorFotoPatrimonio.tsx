@@ -76,47 +76,67 @@ function carregarTesseract(): Promise<void> {
   return tesseractPromise;
 }
 
-async function prepararImagem(arquivo: File): Promise<HTMLCanvasElement> {
+async function prepararImagens(arquivo: File): Promise<HTMLCanvasElement[]> {
   const imagem = await createImageBitmap(arquivo);
   try {
     const escala = Math.min(3, Math.max(1.5, 1800 / Math.max(imagem.width, imagem.height)));
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(imagem.width * escala);
-    canvas.height = Math.round(imagem.height * escala);
-    const contexto = canvas.getContext("2d", { willReadFrequently: true });
-    if (!contexto) throw new Error("Não foi possível preparar a imagem.");
-    contexto.drawImage(imagem, 0, 0, canvas.width, canvas.height);
+    const largura = Math.round(imagem.width * escala);
+    const altura = Math.round(imagem.height * escala);
 
-    // Aumenta o contraste e converte para tons de cinza para facilitar a leitura da etiqueta.
-    const pixels = contexto.getImageData(0, 0, canvas.width, canvas.height);
-    const dados = pixels.data;
-    for (let i = 0; i < dados.length; i += 4) {
-      const cinza = Math.round(dados[i] * 0.299 + dados[i + 1] * 0.587 + dados[i + 2] * 0.114);
-      const contraste = Math.max(0, Math.min(255, (cinza - 128) * 1.45 + 128));
-      dados[i] = contraste;
-      dados[i + 1] = contraste;
-      dados[i + 2] = contraste;
-    }
-    contexto.putImageData(pixels, 0, 0);
-    return canvas;
+    const criar = (rotacao: 0 | 90 | 270) => {
+      const canvas = document.createElement("canvas");
+      canvas.width = rotacao === 0 ? largura : altura;
+      canvas.height = rotacao === 0 ? altura : largura;
+      const contexto = canvas.getContext("2d", { willReadFrequently: true });
+      if (!contexto) throw new Error("Não foi possível preparar a imagem.");
+      contexto.save();
+      if (rotacao === 90) {
+        contexto.translate(canvas.width, 0);
+        contexto.rotate(Math.PI / 2);
+      } else if (rotacao === 270) {
+        contexto.translate(0, canvas.height);
+        contexto.rotate(-Math.PI / 2);
+      }
+      contexto.drawImage(imagem, 0, 0, largura, altura);
+      contexto.restore();
+
+      const pixels = contexto.getImageData(0, 0, canvas.width, canvas.height);
+      const dados = pixels.data;
+      for (let i = 0; i < dados.length; i += 4) {
+        const cinza = Math.round(dados[i] * 0.299 + dados[i + 1] * 0.587 + dados[i + 2] * 0.114);
+        const contraste = Math.max(0, Math.min(255, (cinza - 128) * 1.45 + 128));
+        dados[i] = contraste;
+        dados[i + 1] = contraste;
+        dados[i + 2] = contraste;
+      }
+      contexto.putImageData(pixels, 0, 0);
+      return canvas;
+    };
+
+    // Etiquetas fotografadas de lado são testadas nas três orientações.
+    return [criar(0), criar(90), criar(270)];
   } finally {
     imagem.close();
   }
 }
 
 function extrairNumero(texto: string): string | null {
-  const linhas = texto.split(/\r?\n/);
-  const candidatos = [
-    ...texto.matchAll(/\d[\d\s.\-]{3,}\d/g),
-    ...linhas.flatMap((linha) => {
-      const numeros = linha.match(/\d+/g) ?? [];
-      return numeros.filter((n) => n.length >= 5);
-    }),
-  ]
-    .map((item) => (typeof item === "string" ? item : item[0]).replace(/\D/g, ""))
+  const candidatos = [...texto.matchAll(/\d[\d\s.\-]{3,}\d/g)]
+    .map((item) => item[0].replace(/\D/g, ""))
     .filter((numero) => numero.length >= 5 && numero.length <= 20);
 
-  return candidatos.sort((a, b) => b.length - a.length)[0] ?? null;
+  // As etiquetas patrimoniais da FAPDF mostradas seguem o padrão 122 + 8 dígitos.
+  // Prioriza esse formato (ex.: 12200001508) em vez de escolher qualquer número longo.
+  const tombamentoFapdf = candidatos.find((numero) => /^122\d{8}$/.test(numero));
+  if (tombamentoFapdf) return tombamentoFapdf;
+
+  const porLinha = texto.split(/\r?\n/).flatMap((linha) =>
+    (linha.match(/\d+/g) ?? []).filter((numero) => numero.length >= 5 && numero.length <= 20),
+  );
+  const especifico = porLinha.find((numero) => /^122\d{8}$/.test(numero));
+  if (especifico) return especifico;
+
+  return [...candidatos, ...porLinha].sort((a, b) => b.length - a.length)[0] ?? null;
 }
 
 export function LeitorFotoPatrimonio({
@@ -142,21 +162,26 @@ export function LeitorFotoPatrimonio({
       await carregarTesseract();
       if (!window.Tesseract) throw new Error("O leitor de texto não ficou disponível. Atualize a página e tente novamente.");
 
-      const imagem = await prepararImagem(arquivo);
+      const imagens = await prepararImagens(arquivo);
       worker = await window.Tesseract.createWorker("eng");
       await worker.setParameters({
         tessedit_char_whitelist: "0123456789.-",
         tessedit_pageseg_mode: "6",
       });
 
-      let resultado = await worker.recognize(imagem);
-      let numero = extrairNumero(resultado.data.text);
-
-      // Uma segunda tentativa com foco em uma única linha ajuda em etiquetas estreitas.
-      if (!numero) {
-        await worker.setParameters({ tessedit_pageseg_mode: "7" });
-        resultado = await worker.recognize(imagem);
+      let numero: string | null = null;
+      // Testa a imagem original e as duas rotações, pois as etiquetas podem estar de lado.
+      for (const imagem of imagens) {
+        const resultado = await worker.recognize(imagem);
         numero = extrairNumero(resultado.data.text);
+        if (numero && /^122\d{8}$/.test(numero)) break;
+        if (!numero) {
+          await worker.setParameters({ tessedit_pageseg_mode: "7" });
+          const segundaTentativa = await worker.recognize(imagem);
+          numero = extrairNumero(segundaTentativa.data.text);
+          await worker.setParameters({ tessedit_pageseg_mode: "6" });
+          if (numero && /^122\d{8}$/.test(numero)) break;
+        }
       }
 
       if (!numero) {

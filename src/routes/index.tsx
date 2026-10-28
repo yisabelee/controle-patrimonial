@@ -38,7 +38,7 @@ function Index() {
   ];
 
   return (
-    <div className="min-h-screen text-slate-900" style={{ backgroundImage: "radial-gradient(ellipse at 8% 8%, rgba(226,162,42,0.12), transparent 28%), radial-gradient(ellipse at 92% 35%, rgba(54,93,119,0.10), transparent 32%), linear-gradient(180deg, #f8fafc 0%, #eef3f6 55%, #f8fafc 100%)" }}>
+    <div className="min-h-screen scroll-smooth text-slate-900" style={{ scrollBehavior: "smooth", backgroundImage: "radial-gradient(ellipse at 8% 8%, rgba(226,162,42,0.12), transparent 28%), radial-gradient(ellipse at 92% 35%, rgba(54,93,119,0.10), transparent 32%), linear-gradient(180deg, #f8fafc 0%, #eef3f6 55%, #f8fafc 100%)" }}>
       <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/85 shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link to="/" className="flex items-center gap-3">
@@ -51,7 +51,7 @@ function Index() {
             </span>
           </Link>
           <nav aria-label="Navegação principal" className="flex items-center gap-2 sm:gap-4">
-            <a href="#sobre" className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+            <a href="#sobre" onClick={(e) => { e.preventDefault(); document.getElementById("sobre")?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
               <Info className="size-4" /> <span>Sobre</span>
             </a>
             <Button asChild variant="outline" size="sm">

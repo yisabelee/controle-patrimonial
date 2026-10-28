@@ -121,22 +121,24 @@ async function prepararImagens(arquivo: File): Promise<HTMLCanvasElement[]> {
 }
 
 function extrairNumero(texto: string): string | null {
-  const candidatos = [...texto.matchAll(/\d[\d\s.\-]{3,}\d/g)]
+  // Os tombamentos das etiquetas FAPDF deste sistema seguem o padrão 122 + 8 dígitos.
+  // Primeiro tenta sequências contínuas e sequências separadas por espaços/pontuação.
+  const candidatos = [
+    ...texto.matchAll(/\d[\d\s.\-]{3,}\d/g),
+  ]
     .map((item) => item[0].replace(/\D/g, ""))
-    .filter((numero) => numero.length >= 5 && numero.length <= 20);
+    .filter((numero) => numero.length === 11 && /^122\d{8}$/.test(numero));
 
-  // As etiquetas patrimoniais da FAPDF mostradas seguem o padrão 122 + 8 dígitos.
-  // Prioriza esse formato (ex.: 12200001508) em vez de escolher qualquer número longo.
-  const tombamentoFapdf = candidatos.find((numero) => /^122\d{8}$/.test(numero));
-  if (tombamentoFapdf) return tombamentoFapdf;
+  if (candidatos.length) return candidatos[0];
 
-  const porLinha = texto.split(/\r?\n/).flatMap((linha) =>
-    (linha.match(/\d+/g) ?? []).filter((numero) => numero.length >= 5 && numero.length <= 20),
-  );
-  const especifico = porLinha.find((numero) => /^122\d{8}$/.test(numero));
-  if (especifico) return especifico;
-
-  return [...candidatos, ...porLinha].sort((a, b) => b.length - a.length)[0] ?? null;
+  // OCR às vezes insere espaços entre os dígitos. Procura o padrão após normalizar
+  // cada linha, mas nunca retorna números aleatórios como 345975.
+  for (const linha of texto.split(/\r?\n/)) {
+    const normalizada = linha.replace(/\D/g, "");
+    const encontrado = normalizada.match(/122\d{8}/);
+    if (encontrado) return encontrado[0];
+  }
+  return null;
 }
 
 export function LeitorFotoPatrimonio({
@@ -185,7 +187,7 @@ export function LeitorFotoPatrimonio({
       }
 
       if (!numero) {
-        toast.error("Não consegui identificar o tombamento nessa imagem. Aproxime a etiqueta, evite reflexos e tente novamente, ou digite o número.");
+        toast.error("Não identifiquei um tombamento válido da FAPDF (11 dígitos começando por 122). Aproxime a etiqueta, evite reflexos e tente novamente, ou digite o número.");
         return;
       }
       onNumeroReconhecido(numero);
